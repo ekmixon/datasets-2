@@ -76,8 +76,9 @@ class Text(tensor_feature.Tensor):
     self._encoder = new_encoder
     encoder_cls = self._encoder_cls or type(None)
     if not isinstance(new_encoder, encoder_cls):
-      raise ValueError("Changing type of encoder. Got %s but must be %s" %
-                       (type(new_encoder).__name__, self._encoder_cls.__name__))
+      raise ValueError(
+          f"Changing type of encoder. Got {type(new_encoder).__name__} but must be {self._encoder_cls.__name__}"
+      )
 
   def maybe_set_encoder(self, new_encoder):
     """Set encoder, but no-op if encoder is already set."""
@@ -109,23 +110,20 @@ class Text(tensor_feature.Tensor):
     return super(Text, self).encode_example(example_data)
 
   def save_metadata(self, data_dir, feature_name):
-    fname_prefix = os.path.join(data_dir, "%s.text" % feature_name)
+    fname_prefix = os.path.join(data_dir, f"{feature_name}.text")
     if not self.encoder:
       return
     self.encoder.save_to_file(fname_prefix)
 
   def load_metadata(self, data_dir, feature_name):
-    fname_prefix = os.path.join(data_dir, "%s.text" % feature_name)
-    encoder_cls = self._encoder_cls
-    if encoder_cls:
+    fname_prefix = os.path.join(data_dir, f"{feature_name}.text")
+    if encoder_cls := self._encoder_cls:
       self._encoder = encoder_cls.load_from_file(fname_prefix)  # pytype: disable=attribute-error
       return
 
-    # Error checking: ensure there are no metadata files
-    feature_files = [
+    if feature_files := [
         f for f in tf.io.gfile.listdir(data_dir) if f.startswith(fname_prefix)
-    ]
-    if feature_files:
+    ]:
       raise ValueError(
           "Text feature files found for feature %s but encoder_cls=None. "
           "Make sure to set encoder_cls in the TextEncoderConfig. "
@@ -159,9 +157,7 @@ class Text(tensor_feature.Tensor):
     return self._encoder_config and self._encoder_config.encoder_cls
 
   def _additional_repr_info(self):
-    if self.encoder is None:
-      return {}
-    return {"encoder": repr(self.encoder)}
+    return {} if self.encoder is None else {"encoder": repr(self.encoder)}
 
   def repr_html(self, ex: bytes) -> str:
     """Text are decoded."""
@@ -193,4 +189,4 @@ class Text(tensor_feature.Tensor):
           "soon. Please use the plain_text version of the dataset and migrate "
           "to `tensorflow_text`.")
       return dict(use_encoder=True)
-    return dict()
+    return {}

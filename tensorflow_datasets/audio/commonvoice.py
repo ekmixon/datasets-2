@@ -79,13 +79,14 @@ class CommonVoiceConfig(tfds.core.BuilderConfig):
      **kwargs: keywords arguments forwarded to super
     """
     if language not in _LANGUAGE_ACCENTS:
-      raise ValueError("language must be one of {}. Not: {}".format(
-          list(_LANGUAGE_ACCENTS.keys()), language))
+      raise ValueError(
+          f"language must be one of {list(_LANGUAGE_ACCENTS.keys())}. Not: {language}"
+      )
     self.language = language
     self.accents = accents
 
     kwargs.setdefault("name", language)
-    kwargs.setdefault("description", "Language Code: %s" % language)
+    kwargs.setdefault("description", f"Language Code: {language}")
     kwargs.setdefault("version", tfds.core.Version("1.0.0"))
     super(CommonVoiceConfig, self).__init__(**kwargs)
 
@@ -127,11 +128,11 @@ class CommonVoice(tfds.core.GeneratorBasedBuilder):
         _DOWNLOAD_URL.format(self.builder_config.language))
     clip_folder = os.path.join(dl_path, "clips")
     return [
-        tfds.core.SplitGenerator(  # pylint: disable=g-complex-comprehension
+        tfds.core.SplitGenerator(
             name=k,
             gen_kwargs={
                 "audio_path": clip_folder,
-                "label_path": os.path.join(dl_path, "%s.tsv" % v)
+                "label_path": os.path.join(dl_path, f"{v}.tsv"),
             },
         ) for k, v in _SPLITS.items()
     ]
@@ -149,15 +150,19 @@ class CommonVoice(tfds.core.GeneratorBasedBuilder):
     with tf.io.gfile.GFile(label_path) as file_:
       dataset = csv.DictReader(file_, delimiter="\t")
       for i, row in enumerate(dataset):
-        file_path = os.path.join(audio_path, "%s.mp3" % row["path"])
+        file_path = os.path.join(audio_path, f'{row["path"]}.mp3')
         if tf.io.gfile.exists(file_path):
-          yield i, {
-              "client_id": row["client_id"],
-              "voice": file_path,
-              "sentence": row["sentence"],
-              "upvotes": int(row["up_votes"]) if row["up_votes"] else 0,
-              "downvotes": int(row["down_votes"]) if row["down_votes"] else 0,
-              "age": row["age"],
-              "gender": row["gender"] if row["gender"] else -1,
-              "accent": row["accent"] if row["accent"] else -1
-          }
+          yield (
+              i,
+              {
+                  "client_id": row["client_id"],
+                  "voice": file_path,
+                  "sentence": row["sentence"],
+                  "upvotes": int(row["up_votes"]) if row["up_votes"] else 0,
+                  "downvotes":
+                  int(row["down_votes"]) if row["down_votes"] else 0,
+                  "age": row["age"],
+                  "gender": row["gender"] or -1,
+                  "accent": row["accent"] or -1,
+              },
+          )

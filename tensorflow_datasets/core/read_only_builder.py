@@ -157,15 +157,14 @@ def builder_from_files(
   """
   # Find and load dataset builder.
   builder_dir = _find_builder_dir(name, **builder_kwargs)
-  if builder_dir is not None:  # A generated dataset was found on disk
+  if builder_dir is not None:
     return builder_from_directory(builder_dir)
-  else:
-    data_dirs = constants.list_data_dirs(
-        given_data_dir=builder_kwargs.get('data_dir'))
-    raise registered.DatasetNotFoundError(
-        f'Could not find dataset files for: {name}. Make sure the dataset '
-        f'has been generated in: {data_dirs}. If the dataset has configs, you '
-        'might have to specify the config name.')
+  data_dirs = constants.list_data_dirs(
+      given_data_dir=builder_kwargs.get('data_dir'))
+  raise registered.DatasetNotFoundError(
+      f'Could not find dataset files for: {name}. Make sure the dataset '
+      f'has been generated in: {data_dirs}. If the dataset has configs, you '
+      'might have to specify the config name.')
 
 
 def _find_builder_dir(name: str, **builder_kwargs: Any) -> Optional[str]:
@@ -276,9 +275,8 @@ def _find_builder_dir_single_dir(
 
   # Backward compatibility, in order to be a valid ReadOnlyBuilder, the folder
   # has to contain the feature configuration.
-  if not tf.io.gfile.exists(feature_lib.make_config_path(builder_dir)):
-    return None
-  return builder_dir
+  return (builder_dir if tf.io.gfile.exists(
+      feature_lib.make_config_path(builder_dir)) else None)
 
 
 def _get_default_config_name(builder_dir: str, name: str) -> Optional[str]:
@@ -319,9 +317,7 @@ def _get_version_str(
   # Version not given, using the last one.
   if not requested_version and all_versions:
     return str(all_versions[-1])
-  # Version given, return the biggest version matching `requested_version`
-  for v in reversed(all_versions):
-    if v.match(requested_version):
-      return str(v)
-  # Directory don't has version, or requested_version don't match
-  return None
+  return next(
+      (str(v) for v in reversed(all_versions) if v.match(requested_version)),
+      None,
+  )

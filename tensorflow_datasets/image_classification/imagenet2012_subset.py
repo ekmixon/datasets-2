@@ -99,9 +99,8 @@ class Imagenet2012Subset(Imagenet2012):
     # These were never publicly released.
     if not tf.io.gfile.exists(train_path) or not tf.io.gfile.exists(val_path):
       raise AssertionError(
-          'ImageNet requires manual download of the data. Please download '
-          'the train and val set and place them into: {}, {}'.format(
-              train_path, val_path))
+          f'ImageNet requires manual download of the data. Please download the train and val set and place them into: {train_path}, {val_path}'
+      )
 
     # Download and load subset file.
     subset_file = dl_manager.download(SUBSET2FILES[self.builder_config.name])
@@ -130,9 +129,7 @@ class Imagenet2012Subset(Imagenet2012):
   def _generate_examples(self, archive, subset=None, validation_labels=None):
     """Yields examples."""
     if validation_labels:  # Validation split
-      for key, example in self._generate_examples_validation(
-          archive, validation_labels):
-        yield key, example
+      yield from self._generate_examples_validation(archive, validation_labels)
     # Training split. Main archive contains archives names after a synset noun.
     # Each sub-archive contains pictures associated to that synset.
     for fname, fobj in archive:

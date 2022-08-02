@@ -153,17 +153,16 @@ def _read_records(path, file_format=file_adapters.DEFAULT_FILE_FORMAT):
     file_format: format of the record files.
   """
   # Ignore _index.json files.
-  paths = sorted(tf.io.gfile.glob('%s-*-of-*' % path))
+  paths = sorted(tf.io.gfile.glob(f'{path}-*-of-*'))
   paths = [
       p for p in paths if not p.endswith(tfrecords_writer._INDEX_PATH_SUFFIX)
   ]
-  all_recs = []
-  for fpath in paths:
-    all_recs.append(
-        list(
-            dataset_utils.as_numpy(
-                file_adapters.ADAPTER_FOR_FORMAT[file_format].make_tf_data(
-                    fpath))))
+  all_recs = [
+      list(
+          dataset_utils.as_numpy(
+              file_adapters.ADAPTER_FOR_FORMAT[file_format].make_tf_data(
+                  fpath))) for fpath in paths
+  ]
   return [os.path.basename(p) for p in paths], all_recs
 
 
@@ -173,7 +172,7 @@ def _read_indices(path):
   Args:
     path: path to index, omitting suffix.
   """
-  paths = sorted(tf.io.gfile.glob('%s-*-of-*_index.json' % path))
+  paths = sorted(tf.io.gfile.glob(f'{path}-*-of-*_index.json'))
   all_indices = []
   for path in paths:
     json_str = utils.as_path(path).read_text()
@@ -230,7 +229,7 @@ class WriterTest(testing.TestCase):
     written_files, all_recs = _read_records(path)
     written_index_files, all_indices = _read_indices(path)
     self.assertEqual(written_files,
-                     ['foo.tfrecord-0000%s-of-00005' % i for i in range(5)])
+                     [f'foo.tfrecord-0000{i}-of-00005' for i in range(5)])
     self.assertEqual(all_recs, [
         [b'f', b'g'],
         [b'd'],
@@ -256,7 +255,7 @@ class WriterTest(testing.TestCase):
     written_files, all_recs = _read_records(path)
     written_index_files, all_indices = _read_indices(path)
     self.assertEqual(written_files,
-                     ['foo.tfrecord-0000%s-of-00005' % i for i in range(5)])
+                     [f'foo.tfrecord-0000{i}-of-00005' for i in range(5)])
     self.assertEqual(all_recs, [
         [b'a', b'b'],
         [b'c'],

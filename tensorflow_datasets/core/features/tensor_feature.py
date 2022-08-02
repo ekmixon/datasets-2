@@ -139,8 +139,7 @@ class Tensor(feature_lib.FeatureConnector):
       example_data = np.array(example_data, dtype=np_dtype)
     # Ensure the shape and dtype match
     if example_data.dtype != np_dtype:
-      raise ValueError('Dtype {} do not match {}'.format(
-          example_data.dtype, np_dtype))
+      raise ValueError(f'Dtype {example_data.dtype} do not match {np_dtype}')
 
     shape = example_data.shape
     utils.assert_shape_match(shape, self._shape)

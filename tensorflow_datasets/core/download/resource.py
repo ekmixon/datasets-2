@@ -139,7 +139,7 @@ def _sanitize_url(url, max_length):
   for suffix in _NETLOC_COMMON_SUFFIXES:
     if netloc.endswith(suffix):
       netloc = netloc[:-len(suffix)]
-  url = '%s%s%s%s' % (netloc, url.path, url.params, url.query)
+  url = f'{netloc}{url.path}{url.params}{url.query}'
   # Get the extension:
   for ext in _KNOWN_EXTENSIONS:
     if url.endswith(ext):
@@ -186,7 +186,7 @@ def get_dl_fname(url, checksum):
   checksum = base64.urlsafe_b64encode(_decode_hex(checksum))  # pytype: disable=wrong-arg-types
   checksum = tf.compat.as_text(checksum)[:-1]
   name, extension = _sanitize_url(url, max_length=46)
-  return '%s%s%s' % (name, checksum, extension)
+  return f'{name}{checksum}{extension}'
 
 
 def get_dl_dirname(url):
@@ -197,7 +197,7 @@ def get_dl_dirname(url):
 
 def _get_info_path(path: type_utils.PathLike) -> str:
   """Returns path (`str`) of INFO file associated with resource at path."""
-  return '%s.INFO' % os.fspath(path)
+  return f'{os.fspath(path)}.INFO'
 
 
 def _read_info(info_path: type_utils.PathLike) -> Json:
@@ -256,13 +256,12 @@ def write_info_file(
     dataset_names.append(dataset_name)
   if info.get('original_fname', original_fname) != original_fname:
     raise ValueError(
-        '`original_fname` "{}" stored in {} does NOT match "{}".'.format(
-            info['original_fname'], info_path, original_fname))
+        f"""`original_fname` "{info['original_fname']}" stored in {info_path} does NOT match "{original_fname}"."""
+    )
   if info.get('url_info', url_info_dict) != url_info_dict:
     raise ValueError(
-        'File info {} contains a different checksum that the downloaded one: '
-        'Stored: {}; Expected: {}'.format(info_path, info['url_info'],
-                                          url_info_dict))
+        f"File info {info_path} contains a different checksum that the downloaded one: Stored: {info['url_info']}; Expected: {url_info_dict}"
+    )
   info = dict(
       urls=list(urls),
       dataset_names=list(set(dataset_names)),
@@ -316,6 +315,4 @@ class Resource(object):
   @property
   def extract_method(self):
     """Returns `ExtractMethod` to use on resource. Cannot be None."""
-    if self._extract_method:
-      return self._extract_method
-    return get_extract_method(self.path)
+    return self._extract_method or get_extract_method(self.path)

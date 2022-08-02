@@ -59,7 +59,7 @@ class So2satConfig(tfds.core.BuilderConfig):
       **kwargs: keyword arguments forwarded to super.
     """
     if selection not in _DATA_OPTIONS:
-      raise ValueError('selection must be one of %s' % _DATA_OPTIONS)
+      raise ValueError(f'selection must be one of {_DATA_OPTIONS}')
 
     v2 = tfds.core.Version('2.0.0')
     v2_1 = tfds.core.Version('2.1.0')

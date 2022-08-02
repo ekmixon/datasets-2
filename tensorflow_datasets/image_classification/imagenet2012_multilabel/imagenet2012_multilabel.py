@@ -156,14 +156,13 @@ def _get_multi_labels_and_problematic_images(
   """
   with tf.io.gfile.GFile(dl_manager.download(_MULTI_LABELS_URL), 'r') as f:
     human_accuracy_data = json.load(f)
-  val_annotated_images = {}
   prefix = 'ILSVRC2012_val_'
   len_prefix = len(prefix)
-  for image_name in human_accuracy_data['initial_annots'].keys():
-    if image_name[:len_prefix] == prefix:
-      val_annotated_images[image_name] = human_accuracy_data['initial_annots'][
-          image_name]
-
+  val_annotated_images = {
+      image_name: human_accuracy_data['initial_annots'][image_name]
+      for image_name in human_accuracy_data['initial_annots'].keys()
+      if image_name[:len_prefix] == prefix
+  }
   problematic_images = list(human_accuracy_data['problematic_images'].keys())
   return val_annotated_images, problematic_images
 
@@ -238,8 +237,8 @@ class Imagenet2012Multilabel(tfds.core.GeneratorBasedBuilder):
     val_path = os.path.join(dl_manager.manual_dir, 'ILSVRC2012_img_val.tar')
     if not tf.io.gfile.exists(val_path):
       raise AssertionError(
-          'ImageNet requires manual download of the data. Please download '
-          'the train and val set and place them into: {}'.format(val_path))
+          f'ImageNet requires manual download of the data. Please download the train and val set and place them into: {val_path}'
+      )
     multi_and_prob = _get_multi_labels_and_problematic_images(dl_manager)
     return {
         'validation':
@@ -257,17 +256,16 @@ class Imagenet2012Multilabel(tfds.core.GeneratorBasedBuilder):
       if fname not in multi_labels:
         # Image is not in the annotated set of 20,000 images
         continue
-      else:
-        is_problematic = fname in problematic_images
-        correct_multi_labels = []
-        wrong_multi_labels = []
-        unclear_multi_labels = []
-        if 'correct' in multi_labels[fname]:
-          correct_multi_labels = multi_labels[fname]['correct']
-        if 'wrong' in multi_labels[fname]:
-          wrong_multi_labels = multi_labels[fname]['wrong']
-        if 'unclear' in multi_labels[fname]:
-          unclear_multi_labels = multi_labels[fname]['unclear']
+      is_problematic = fname in problematic_images
+      correct_multi_labels = []
+      wrong_multi_labels = []
+      unclear_multi_labels = []
+      if 'correct' in multi_labels[fname]:
+        correct_multi_labels = multi_labels[fname]['correct']
+      if 'wrong' in multi_labels[fname]:
+        wrong_multi_labels = multi_labels[fname]['wrong']
+      if 'unclear' in multi_labels[fname]:
+        unclear_multi_labels = multi_labels[fname]['unclear']
 
       record = {
           'file_name': fname,

@@ -61,9 +61,9 @@ def list_builders(
 ) -> List[str]:
   """Returns the string names of all `tfds.core.DatasetBuilder`s."""
   datasets = registered.list_imported_builders()
-  if with_community_datasets:
-    if visibility.DatasetType.COMMUNITY_PUBLIC.is_available():
-      datasets += community.community_register.list_builders()
+  if (with_community_datasets
+      and visibility.DatasetType.COMMUNITY_PUBLIC.is_available()):
+    datasets += community.community_register.list_builders()
   return datasets
 
 
@@ -139,8 +139,7 @@ def builder(
   # `try_gcs` currently only support non-community datasets
   if (try_gcs and not name.namespace and
       gcs_utils.is_dataset_on_gcs(str(name))):
-    data_dir = builder_kwargs.get('data_dir')
-    if data_dir:
+    if data_dir := builder_kwargs.get('data_dir'):
       raise ValueError(
           f'Cannot have both `try_gcs=True` and `data_dir={data_dir}` '
           'explicitly set')
@@ -156,8 +155,7 @@ def builder(
   # Eventually try loading from files first
   if _try_load_from_files_first(cls, **builder_kwargs):
     try:
-      b = read_only_builder.builder_from_files(str(name), **builder_kwargs)
-      return b
+      return read_only_builder.builder_from_files(str(name), **builder_kwargs)
     except registered.DatasetNotFoundError as e:
       pass
 
@@ -330,9 +328,7 @@ def load(
   as_dataset_kwargs.setdefault('read_config', read_config)
 
   ds = dbuilder.as_dataset(**as_dataset_kwargs)
-  if with_info:
-    return ds, dbuilder.info
-  return ds
+  return (ds, dbuilder.info) if with_info else ds
 
 
 def _get_all_versions(
@@ -376,12 +372,11 @@ def _iter_full_names(current_version_only: bool) -> Iterator[str]:
   """Yield all registered datasets full_names (see `list_full_names`)."""
   for builder_name in registered.list_imported_builders():
     builder_cls_ = builder_cls(builder_name)
-    for full_name in _iter_single_full_names(
+    yield from _iter_single_full_names(
         builder_name,
         builder_cls_,
         current_version_only=current_version_only,
-    ):
-      yield full_name
+    )
 
 
 def list_full_names(current_version_only: bool = False) -> List[str]:
@@ -439,9 +434,7 @@ def _reraise_with_list_builders(
           - the module defining the dataset class is imported
       """)
 
-  # Add close matches
-  close_matches = difflib.get_close_matches(str(name), all_datasets, n=1)
-  if close_matches:
+  if close_matches := difflib.get_close_matches(str(name), all_datasets, n=1):
     error_string += f'\nDid you mean: {name} -> {close_matches[0]}\n'
 
   raise py_utils.reraise(e, suffix=error_string)

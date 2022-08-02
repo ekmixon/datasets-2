@@ -15,6 +15,7 @@
 
 """Utilities for file names."""
 
+
 import dataclasses
 import os
 import re
@@ -27,7 +28,7 @@ _first_cap_re = re.compile('(.)([A-Z][a-z0-9]+)')
 _all_cap_re = re.compile('([a-z0-9])([A-Z])')
 
 _NAME_CLASS = r'[a-zA-Z][\w]*'
-_NAME_CLASS_REG = re.compile(r'^' + _NAME_CLASS + r'$')
+_NAME_CLASS_REG = re.compile(f'^{_NAME_CLASS}$')
 
 # Regex matching 'dataset/config:1.*.*/arg=123'
 _NAME_REG = re.compile(r'^'
@@ -154,7 +155,7 @@ def _dataset_name_and_kwargs_from_name_str(
       if val is None:
         continue
       if attr in kwargs:
-        raise ValueError('Dataset %s: cannot pass %s twice.' % (name, attr))
+        raise ValueError(f'Dataset {name}: cannot pass {attr} twice.')
       kwargs[attr] = val
     return name, kwargs
   except Exception as e:  # pylint: disable=broad-except
@@ -200,21 +201,21 @@ def snake_to_camelcase(name: str) -> str:
 
 def filename_prefix_for_name(name: str) -> str:
   if os.path.basename(name) != name:
-    raise ValueError('Should be a dataset name, not a path: %s' % name)
+    raise ValueError(f'Should be a dataset name, not a path: {name}')
   return camelcase_to_snakecase(name)
 
 
 def filename_prefix_for_split(name: str, split: str) -> str:
   if os.path.basename(name) != name:
-    raise ValueError('Should be a dataset name, not a path: %s' % name)
-  return '%s-%s' % (filename_prefix_for_name(name), split)
+    raise ValueError(f'Should be a dataset name, not a path: {name}')
+  return f'{filename_prefix_for_name(name)}-{split}'
 
 
 def sharded_filenames(filename_prefix: str, num_shards: int) -> List[str]:
   """Sharded filenames given prefix and number of shards."""
   shard_suffix = '%05d-of-%05d'
   return [
-      '%s-%s' % (filename_prefix, shard_suffix % (i, num_shards))
+      f'{filename_prefix}-{shard_suffix % (i, num_shards)}'
       for i in range(num_shards)
   ]
 
@@ -225,9 +226,9 @@ def filepattern_for_dataset_split(dataset_name: str,
                                   filetype_suffix: Optional[str] = None) -> str:
   prefix = filename_prefix_for_split(dataset_name, split)
   if filetype_suffix:
-    prefix += '.%s' % filetype_suffix
+    prefix += f'.{filetype_suffix}'
   filepath = os.path.join(data_dir, prefix)
-  return '%s*' % filepath
+  return f'{filepath}*'
 
 
 def filenames_for_dataset_split(
@@ -237,7 +238,7 @@ def filenames_for_dataset_split(
     filetype_suffix: Optional[str] = None) -> List[str]:
   prefix = filename_prefix_for_split(dataset_name, split)
   if filetype_suffix:
-    prefix += '.%s' % filetype_suffix
+    prefix += f'.{filetype_suffix}'
   return sharded_filenames(prefix, num_shards)
 
 
@@ -254,8 +255,7 @@ def filepaths_for_dataset_split(
       num_shards=num_shards,
       filetype_suffix=filetype_suffix,
   )
-  filepaths = [os.path.join(data_dir, fname) for fname in filenames]
-  return filepaths
+  return [os.path.join(data_dir, fname) for fname in filenames]
 
 
 @dataclasses.dataclass(eq=True, frozen=True)

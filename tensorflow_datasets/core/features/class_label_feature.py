@@ -73,9 +73,8 @@ class ClassLabel(tensor_feature.Tensor):
 
   @property
   def names(self):
-    if not self._int2str:
-      return [tf.compat.as_text(str(i)) for i in range(self._num_classes)]
-    return list(self._int2str)
+    return (list(self._int2str) if self._int2str else
+            [tf.compat.as_text(str(i)) for i in range(self._num_classes)])
 
   @names.setter
   def names(self, new_names):
@@ -83,8 +82,8 @@ class ClassLabel(tensor_feature.Tensor):
     # Names can only be defined once
     if self._int2str is not None and self._int2str != int2str:
       raise ValueError(
-          "Trying to overwrite already defined ClassLabel names. Previous: {} "
-          ", new: {}".format(self._int2str, int2str))
+          f"Trying to overwrite already defined ClassLabel names. Previous: {self._int2str} , new: {int2str}"
+      )
 
     # Set-up [new] names
     self._int2str = int2str
@@ -99,9 +98,8 @@ class ClassLabel(tensor_feature.Tensor):
       self._num_classes = num_classes
     elif self._num_classes != num_classes:
       raise ValueError(
-          "ClassLabel number of names do not match the defined num_classes. "
-          "Got {} names VS {} num_classes".format(num_classes,
-                                                  self._num_classes))
+          f"ClassLabel number of names do not match the defined num_classes. Got {num_classes} names VS {self._num_classes} num_classes"
+      )
 
   def str2int(self, str_value):
     """Conversion class name string => integer."""
@@ -116,7 +114,7 @@ class ClassLabel(tensor_feature.Tensor):
     except ValueError:
       failed_parse = True
     if failed_parse or not 0 <= int_value < self._num_classes:
-      raise ValueError("Invalid string class label %s" % str_value)
+      raise ValueError(f"Invalid string class label {str_value}")
     return int_value
 
   def int2str(self, int_value):
@@ -188,7 +186,7 @@ class ClassLabel(tensor_feature.Tensor):
 
 
 def _get_names_filepath(data_dir, feature_name):
-  return os.path.join(data_dir, "{}.labels.txt".format(feature_name))
+  return os.path.join(data_dir, f"{feature_name}.labels.txt")
 
 
 def _load_names_from_file(names_filepath):

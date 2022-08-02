@@ -15,6 +15,7 @@
 
 """PetFinder Dataset."""
 
+
 import os
 import tensorflow as tf
 import tensorflow_datasets.public_api as tfds
@@ -39,9 +40,10 @@ _LABEL_OPTIONS = [
     "test", "train", "breed_labels", "state_labels", "color_labels"
 ]
 
-_DL_URLS = {name: _URL + name + ".zip" for name in _DATA_OPTIONS}
-_DL_URLS.update({label: _URL + label + ".csv" for label in _LABEL_OPTIONS})
-
+_DL_URLS = {name: _URL + name + ".zip"
+            for name in _DATA_OPTIONS
+            } | {label: _URL + label + ".csv"
+                 for label in _LABEL_OPTIONS}
 _INT_FEATS = [
     "Type", "Age", "Breed1", "Breed2", "Gender", "Color1", "Color2", "Color3",
     "MaturitySize", "FurLength", "Vaccinated", "Dewormed", "Sterilized",
@@ -114,7 +116,7 @@ class PetFinder(tfds.core.GeneratorBasedBuilder):
     pd = tfds.core.lazy_imports.pandas
 
     if not tf.io.gfile.exists(csv_paths):
-      raise AssertionError("{} not exist".format(csv_name))
+      raise AssertionError(f"{csv_name} not exist")
     with tf.io.gfile.GFile(csv_paths) as csv_file:
       dataframe = pd.read_csv(csv_file)
     # add a dummy label for test set

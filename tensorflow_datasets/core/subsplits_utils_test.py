@@ -118,7 +118,7 @@ def test_even_splits_add():
 
   # Test to split multiple splits
   split = subsplits_utils.even_splits('train', 3, drop_remainder=True)[0]
-  split = split + 'test'
+  split = f'{split}test'
 
   expected = 'train[:3]+test'
 

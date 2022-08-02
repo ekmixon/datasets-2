@@ -109,7 +109,7 @@ class ColorectalHistology(tfds.core.GeneratorBasedBuilder):
             "label": class_name,
             "filename": fn,
         }
-        yield "%s/%s" % (class_name, fn), record
+        yield (f"{class_name}/{fn}", record)
 
 
 class ColorectalHistologyLarge(tfds.core.GeneratorBasedBuilder):

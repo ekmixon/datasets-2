@@ -102,10 +102,7 @@ def write_metadata(
   )
 
   if version is None:  # Automatically detect the version
-    if utils.Version.is_valid(data_dir.name):
-      version = data_dir.name
-    else:
-      version = '1.0.0'
+    version = data_dir.name if utils.Version.is_valid(data_dir.name) else '1.0.0'
   cls.VERSION = utils.Version(version)
 
   # Create a dummy builder (use non existant folder to make sure
@@ -148,7 +145,7 @@ def _load_splits(
     builder: dataset_builder.DatasetBuilder,
 ) -> split_lib.SplitDict:
   """Load the SplitDict which can be passed to DatasetInfo."""
-  split_names = sorted(set(f.split for f in file_infos))
+  split_names = sorted({f.split for f in file_infos})
 
   if split_infos is None:  # Auto-compute the split-infos
     split_infos = compute_split_utils.compute_split_info(data_dir=data_dir)

@@ -361,7 +361,7 @@ class RluRwrl(rlu_common.RLUBuilder):
                         axis=0)
     is_terminal = tf.squeeze(discount == 0., axis=-1)
     episode_return = tf.reduce_sum(reward)
-    episode = {
+    return {
         # Episode Metadata
         'episode_return': episode_return,
         'steps': {
@@ -372,9 +372,8 @@ class RluRwrl(rlu_common.RLUBuilder):
             'is_first': is_first,
             'is_last': is_last,
             'is_terminal': is_terminal,
-        }
+        },
     }
-    return episode
 
   def _generate_examples(self, paths):
     """Yields examples."""

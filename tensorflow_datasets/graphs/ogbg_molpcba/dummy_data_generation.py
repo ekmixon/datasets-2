@@ -146,7 +146,7 @@ def save_to_path(path: ReadWritePath,
 
   # Save each split as a separate compressed CSV file.
   for split, split_indices in splits.items():
-    split_save_name = (split_path / ('%s.csv.gz' % split))
+    split_save_name = split_path / f'{split}.csv.gz'
     split_df = pd.DataFrame(split_indices)
     split_df.to_csv(split_save_name,
                     compression='gzip', header=False, index=None)

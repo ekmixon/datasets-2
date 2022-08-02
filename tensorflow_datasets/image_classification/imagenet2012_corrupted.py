@@ -120,8 +120,8 @@ def _make_builder_configs():
   config_list = []
   for each_corruption in BENCHMARK_CORRUPTIONS + EXTRA_CORRUPTIONS:
     for each_severity in range(1, 6):
-      name_str = each_corruption + '_' + str(each_severity)
-      description_str = 'corruption type = ' + each_corruption + ', severity = '
+      name_str = f'{each_corruption}_{str(each_severity)}'
+      description_str = f'corruption type = {each_corruption}, severity = '
       description_str += str(each_severity)
       config_list.append(
           Imagenet2012CorruptedConfig(

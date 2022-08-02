@@ -31,7 +31,7 @@ _GCS_SCHEME = 'gs://'
 @pytest.fixture
 def gcs_mocked_path(tmp_path: pathlib.Path):
   """Fixture which patch the gfile API to redirect `gs://` calls."""
-  prefix_path = os.fspath(tmp_path) + '/'
+  prefix_path = f'{os.fspath(tmp_path)}/'
 
   def _norm_path(path: str):
     return path.replace(_GCS_SCHEME, prefix_path)

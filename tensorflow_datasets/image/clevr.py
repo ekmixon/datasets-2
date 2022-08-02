@@ -113,14 +113,13 @@ class CLEVR(tfds.core.GeneratorBasedBuilder):
               name=name_map[split_name],
               gen_kwargs={
                   "images_dir_path":
-                      os.path.join(images_path_dir, split_name),
+                  os.path.join(images_path_dir, split_name),
                   "question_file":
-                      os.path.join(
-                          questions_path_dir,
-                          "CLEVR_{}_questions.json".format(split_name)),
+                  os.path.join(questions_path_dir,
+                               f"CLEVR_{split_name}_questions.json"),
                   "scenes_description_file":
-                      os.path.join(scenes_path_dir,
-                                   "CLEVR_{}_scenes.json".format(split_name)),
+                  os.path.join(scenes_path_dir,
+                               f"CLEVR_{split_name}_scenes.json"),
               },
           ))
 

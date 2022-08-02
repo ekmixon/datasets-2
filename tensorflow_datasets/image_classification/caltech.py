@@ -120,8 +120,9 @@ class Caltech101(tfds.core.GeneratorBasedBuilder):
           # _TRAIN_POINTS_PER_CLASS datapoints are sampled for the train split,
           # the others constitute the test split.
           if _TRAIN_POINTS_PER_CLASS > len(fnames):
-            raise ValueError("Fewer than {} ({}) points in class {}".format(
-                _TRAIN_POINTS_PER_CLASS, len(fnames), d))
+            raise ValueError(
+                f"Fewer than {_TRAIN_POINTS_PER_CLASS} ({len(fnames)}) points in class {d}"
+            )
           train_fnames = np.random.choice(
               fnames, _TRAIN_POINTS_PER_CLASS, replace=False)
           test_fnames = set(fnames).difference(train_fnames)
@@ -135,6 +136,6 @@ class Caltech101(tfds.core.GeneratorBasedBuilder):
                   "label": d.lower(),
                   "image/file_name": image_file,
               }
-              yield "%s/%s" % (d, image_file), record
+              yield (f"{d}/{image_file}", record)
     # Resets the seeds to their previous states.
     np.random.set_state(numpy_original_state)

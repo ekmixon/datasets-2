@@ -91,19 +91,17 @@ def _make_builder_configs():
   Returns:
     A list of 15 MNISTCorruptedConfig objects.
   """
-  config_list = []
-  for corruption in _CORRUPTIONS:
-    config_list.append(
-        MNISTCorruptedConfig(
-            name=corruption,
-            version=tfds.core.Version('1.0.0'),
-            release_notes={
-                '1.0.0': 'New split API',
-            },
-            description='Corruption method: ' + corruption,
-            corruption_type=corruption,
-        ))
-  return config_list
+  return [
+      MNISTCorruptedConfig(
+          name=corruption,
+          version=tfds.core.Version('1.0.0'),
+          release_notes={
+              '1.0.0': 'New split API',
+          },
+          description=f'Corruption method: {corruption}',
+          corruption_type=corruption,
+      ) for corruption in _CORRUPTIONS
+  ]
 
 
 class MNISTCorrupted(tfds.core.GeneratorBasedBuilder):

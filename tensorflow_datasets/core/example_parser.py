@@ -111,7 +111,7 @@ def _dict_to_ragged(example_data, tensor_info):
   return tf.RaggedTensor.from_nested_row_lengths(
       flat_values=example_data["ragged_flat_values"],
       nested_row_lengths=[
-          example_data["ragged_row_lengths_{}".format(k)]
+          example_data[f"ragged_row_lengths_{k}"]
           for k in range(tensor_info.sequence_rank - 1)
       ],
   )
@@ -134,7 +134,7 @@ def _to_tf_example_spec(tensor_info):
   else:
     # TFRecord only support 3 types
     raise NotImplementedError(
-        "Serialization not implemented for dtype {}".format(tensor_info))
+        f"Serialization not implemented for dtype {tensor_info}")
 
   # Convert the shape
 
@@ -158,12 +158,13 @@ def _to_tf_example_spec(tensor_info):
   elif tensor_info.sequence_rank > 1:  # RaggedTensor
     # Decoding here should match encoding from `_add_ragged_fields` in
     # `example_serializer.py`
-    tf_specs = {  # pylint: disable=g-complex-comprehension
-        "ragged_row_lengths_{}".format(k): tf.io.FixedLenSequenceFeature(  # pylint: disable=g-complex-comprehension
+    tf_specs = {
+        f"ragged_row_lengths_{k}": tf.io.FixedLenSequenceFeature(  # pylint: disable=g-complex-comprehension
             shape=(),
             dtype=tf.int64,
             allow_missing=True,
-        ) for k in range(tensor_info.sequence_rank - 1)
+        )
+        for k in range(tensor_info.sequence_rank - 1)
     }
     tf_specs["ragged_flat_values"] = tf.io.FixedLenSequenceFeature(
         shape=tensor_info.shape[tensor_info.sequence_rank:],

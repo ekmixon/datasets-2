@@ -39,7 +39,7 @@ class GuessExtractMethodTest(testing.TestCase):
     ]:
       res = resource._guess_extract_method(fname)
       self.assertEqual(res, expected_result,
-                       '(%s)->%s instead of %s' % (fname, res, expected_result))
+                       f'({fname})->{res} instead of {expected_result}')
 
 
 class DlDirNameTest(testing.TestCase):

@@ -130,8 +130,8 @@ class Sequence(top_level_feature.TopLevelFeature):
     # If length is static, ensure that the given length match
     if self._length is not None and len(sequence_elements) != self._length:
       raise ValueError(
-          'Input sequence length do not match the defined one. Got {} != '
-          '{}'.format(len(sequence_elements), self._length))
+          f'Input sequence length do not match the defined one. Got {len(sequence_elements)} != {self._length}'
+      )
 
     # Empty sequences return empty arrays
     if not sequence_elements:
@@ -193,7 +193,7 @@ class Sequence(top_level_feature.TopLevelFeature):
     if inner_feature_repr.startswith('FeaturesDict('):
       # Minor formatting cleaning: 'Sequence(FeaturesDict({' => 'Sequence({'
       inner_feature_repr = inner_feature_repr[len('FeaturesDict('):-len(')')]
-    return '{}({})'.format(type(self).__name__, inner_feature_repr)
+    return f'{type(self).__name__}({inner_feature_repr})'
 
   @classmethod
   def from_json_content(cls, value: Json) -> 'Sequence':
@@ -211,7 +211,7 @@ class Sequence(top_level_feature.TopLevelFeature):
 def build_empty_np(serialized_info):
   """Build empty sequence with the shape of serialized_info."""
   return np.empty(
-      shape=tuple(s if s else 0 for s in serialized_info.shape),
+      shape=tuple(s or 0 for s in serialized_info.shape),
       dtype=serialized_info.dtype.as_numpy_dtype,
   )
 
@@ -235,14 +235,12 @@ def _np_to_list(elem):
   """Returns list from list, tuple or ndarray."""
   if isinstance(elem, list):
     return elem
-  elif isinstance(elem, tuple):
-    return list(elem)
-  elif isinstance(elem, np.ndarray):
+  elif isinstance(elem, (tuple, np.ndarray)):
     return list(elem)
   else:
     raise ValueError(
-        'Input elements of a sequence should be either a numpy array, a '
-        'python list or tuple. Got {}'.format(type(elem)))
+        f'Input elements of a sequence should be either a numpy array, a python list or tuple. Got {type(elem)}'
+    )
 
 
 def transpose_dict_list(dict_list):

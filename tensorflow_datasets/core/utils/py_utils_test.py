@@ -235,7 +235,8 @@ class GetClassPathUrlTest(testing.TestCase):
     cls_url = py_utils.get_class_url(py_utils.NonMutableDict)
     self.assertEqual(
         cls_url,
-        (constants.SRC_BASE_URL + 'tensorflow_datasets/core/utils/py_utils.py'))
+        f'{constants.SRC_BASE_URL}tensorflow_datasets/core/utils/py_utils.py',
+    )
 
 
 def test_list_info_files(tmp_path: pathlib.Path):

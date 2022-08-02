@@ -72,9 +72,7 @@ def _generate_annotation(example_id, height, width):
   """Generate a fake annotation XML for the given example id."""
   # pylint: disable=protected-access
   label_names = tfds.features.ClassLabel(names=bccd._CLASS_LABELS).names  # pytype: disable=module-attr
-  # pylint: enable=protected-access
-  annotation = "<annotation>\n"
-  annotation += "<folder>JPEGImages</folder>\n"
+  annotation = "<annotation>\n" + "<folder>JPEGImages</folder>\n"
   annotation += "<filename>%d.jpg</filename>\n" % example_id
   annotation += "<path>/home/pi/detection_dataset/JPEGImages/%d.jpg</path>" % example_id
   annotation += "<source>\n"
@@ -121,7 +119,7 @@ def _generate_data_for_set(set_name, example_start, num_examples):
     _generate_annotation(example_id, 480, 640)
   # Add all example ids to the TXT file with all examples in the set.
   filepath = os.path.join(
-      _output_dir(), "BCCD_Dataset-1.0/BCCD/ImageSets/Main/%s.txt" % set_name)
+      _output_dir(), f"BCCD_Dataset-1.0/BCCD/ImageSets/Main/{set_name}.txt")
   _write_text_file(
       filepath, "".join([
           "BloodImage_{:05d}\n".format(example_id)

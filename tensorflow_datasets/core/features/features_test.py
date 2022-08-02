@@ -291,8 +291,8 @@ def test_tensor_feature_backward_compatibility():
   cls = features_lib.Tensor
   module_base = 'tensorflow_datasets.core.features.'
   # Both aliases are registered
-  assert registered[module_base + 'tensor_feature.Tensor'] is cls
-  assert registered[module_base + 'feature.Tensor'] is cls
+  assert registered[f'{module_base}tensor_feature.Tensor'] is cls
+  assert registered[f'{module_base}feature.Tensor'] is cls
 
 
 if __name__ == '__main__':

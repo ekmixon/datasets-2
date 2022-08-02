@@ -62,7 +62,7 @@ def _compute_split_boundaries(split_probs, n_items):
                          splits=len(split_probs), items=n_items))
   total_probs = sum(p for name, p in split_probs)
   if abs(1 - total_probs) > 1E-8:
-    raise ValueError('Probs should sum up to 1. probs={}'.format(split_probs))
+    raise ValueError(f'Probs should sum up to 1. probs={split_probs}')
   split_boundaries = []
   sum_p = 0.0
   for name, p in split_probs:
@@ -92,7 +92,7 @@ def _get_inter_splits_by_group(items_and_groups, split_probs, split_number):
   Returns:
     Dictionary that looks like {split name -> set(ids)}.
   """
-  groups = sorted(set(group_id for item_id, group_id in items_and_groups))
+  groups = sorted({group_id for item_id, group_id in items_and_groups})
   rng = np.random.RandomState(split_number)
   rng.shuffle(groups)
 
@@ -145,12 +145,12 @@ class Dementiabank(tfds.core.GeneratorBasedBuilder):
     control_folder = os.path.join(dl_manager.manual_dir, _CONTROL_FOLDER)
     dementia_folder = os.path.join(dl_manager.manual_dir, _DEMENTIA_FOLDER)
     examples_and_speaker_ids = []
-    for fname in tf.io.gfile.glob('{}/*.mp3'.format(control_folder)):
+    for fname in tf.io.gfile.glob(f'{control_folder}/*.mp3'):
       _, short_name = os.path.split(fname)
       speaker_id, _ = short_name.split('-')
       example = {'audio': fname, 'label': 'control', 'speaker_id': speaker_id}
       examples_and_speaker_ids.append((example, speaker_id))
-    for fname in tf.io.gfile.glob('{}/*.mp3'.format(dementia_folder)):
+    for fname in tf.io.gfile.glob(f'{dementia_folder}/*.mp3'):
       _, short_name = os.path.split(fname)
       speaker_id, _ = short_name.split('-')
       example = {'audio': fname, 'label': 'dementia', 'speaker_id': speaker_id}

@@ -285,29 +285,26 @@ class SplitBuilder:
         path=path,
         disable_shuffling=disable_shuffling,
     )
-    # Depending on the type of generator, we use the corresponding
-    # `_build_from_xyz` method.
     if isinstance(generator, collections.abc.Iterable):
       return self._build_from_generator(**build_kwargs)
-    else:  # Otherwise, beam required
-      unknown_generator_type = TypeError(
-          f'Invalid split generator value for split `{split_name}`. '
-          'Expected generator or apache_beam object. Got: '
-          f'{type(generator)}')
-      try:
-        import apache_beam as beam  # pylint: disable=g-import-not-at-top
-      except ImportError:
-        # Beam can't be imported, what was the object returned by the user ?
-        raise unknown_generator_type
-      if isinstance(generator, beam.PTransform):
-        # Generate the beam.PCollection
-        pcollection = self.beam_pipeline | split_name >> generator
-        build_kwargs['generator'] = pcollection
-        return self._build_from_pcollection(**build_kwargs)
-      elif isinstance(generator, beam.PCollection):
-        return self._build_from_pcollection(**build_kwargs)
-      else:
-        raise unknown_generator_type
+    unknown_generator_type = TypeError(
+        f'Invalid split generator value for split `{split_name}`. '
+        'Expected generator or apache_beam object. Got: '
+        f'{type(generator)}')
+    try:
+      import apache_beam as beam  # pylint: disable=g-import-not-at-top
+    except ImportError:
+      # Beam can't be imported, what was the object returned by the user ?
+      raise unknown_generator_type
+    if isinstance(generator, beam.PTransform):
+      # Generate the beam.PCollection
+      pcollection = self.beam_pipeline | split_name >> generator
+      build_kwargs['generator'] = pcollection
+      return self._build_from_pcollection(**build_kwargs)
+    elif isinstance(generator, beam.PCollection):
+      return self._build_from_pcollection(**build_kwargs)
+    else:
+      raise unknown_generator_type
 
   def _build_from_generator(
       self,

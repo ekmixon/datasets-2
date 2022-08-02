@@ -50,8 +50,7 @@ class VideoFeatureTest(testing.FeatureExpectationsTestCase):
     video_shape = (None, 400, 640, 3)
     lsun_examples_path = os.path.join(self._test_data_path, 'lsun_examples')
     frames_paths = [
-        os.path.join(lsun_examples_path, '{}.jpg'.format(i))
-        for i in (1, 2, 3, 4)
+        os.path.join(lsun_examples_path, f'{i}.jpg') for i in (1, 2, 3, 4)
     ]
     frames = []
     for frame_path in frames_paths:

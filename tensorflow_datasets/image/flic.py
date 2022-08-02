@@ -68,7 +68,7 @@ class FlicConfig(tfds.core.BuilderConfig):
   def __init__(self, *, data, **kwargs):
     """Constructs a FlicConfig."""
     if data not in _DATA_OPTIONS:
-      raise ValueError("data must be one of %s" % _DATA_OPTIONS)
+      raise ValueError(f"data must be one of {_DATA_OPTIONS}")
 
     descriptions = {
         "small": "5003 examples used in CVPR13 MODEC paper.",
@@ -76,7 +76,7 @@ class FlicConfig(tfds.core.BuilderConfig):
             "20928 examples, a superset of FLIC consisting of more difficult "
             "examples."
     }
-    description = kwargs.get("description", "Uses %s" % descriptions[data])
+    description = kwargs.get("description", f"Uses {descriptions[data]}")
     kwargs["description"] = description
 
     super(FlicConfig, self).__init__(**kwargs)
@@ -86,11 +86,10 @@ class FlicConfig(tfds.core.BuilderConfig):
 
 
 def _make_builder_configs():
-  configs = []
-  for data in _DATA_OPTIONS:
-    configs.append(
-        FlicConfig(name=data, version=tfds.core.Version("2.0.0"), data=data))
-  return configs
+  return [
+      FlicConfig(name=data, version=tfds.core.Version("2.0.0"), data=data)
+      for data in _DATA_OPTIONS
+  ]
 
 
 class Flic(tfds.core.GeneratorBasedBuilder):

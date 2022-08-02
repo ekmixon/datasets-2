@@ -18,6 +18,7 @@
 https://storage.googleapis.com/openimages/web/index.html
 """
 
+
 import collections
 import csv
 import functools
@@ -97,38 +98,40 @@ _CITATION = """\
 # pylint: disable=line-too-long
 _URLS = {
     'train_images': [
-        tfds.download.Resource(  # pylint:disable=g-complex-comprehension
-            url='http://open-images-dataset.s3.amazonaws.com/tar/train_%s.tar.gz'
-            % i_,
-            extract_method=tfds.download.ExtractMethod.GZIP)
-        for i_ in '0123456789abcdef'
+        tfds.download.Resource(
+            url=
+            f'http://open-images-dataset.s3.amazonaws.com/tar/train_{i_}.tar.gz',
+            extract_method=tfds.download.ExtractMethod.GZIP,
+        ) for i_ in '0123456789abcdef'
     ],
     'test_images':
-        tfds.download.Resource(
-            url='http://open-images-dataset.s3.amazonaws.com/tar/test.tar.gz',
-            extract_method=tfds.download.ExtractMethod.GZIP),
+    tfds.download.Resource(
+        url='http://open-images-dataset.s3.amazonaws.com/tar/test.tar.gz',
+        extract_method=tfds.download.ExtractMethod.GZIP,
+    ),
     'validation_images':
-        tfds.download.Resource(
-            url='http://open-images-dataset.s3.amazonaws.com/tar/validation.tar.gz',
-            extract_method=tfds.download.ExtractMethod.GZIP),
+    tfds.download.Resource(
+        url='http://open-images-dataset.s3.amazonaws.com/tar/validation.tar.gz',
+        extract_method=tfds.download.ExtractMethod.GZIP,
+    ),
     'train_human_labels':
-        'https://storage.googleapis.com/openimages/2018_04/train/train-annotations-human-imagelabels.csv',
+    'https://storage.googleapis.com/openimages/2018_04/train/train-annotations-human-imagelabels.csv',
     'train_machine_labels':
-        'https://storage.googleapis.com/openimages/2018_04/train/train-annotations-machine-imagelabels.csv',
+    'https://storage.googleapis.com/openimages/2018_04/train/train-annotations-machine-imagelabels.csv',
     'test_human_labels':
-        'https://storage.googleapis.com/openimages/2018_04/test/test-annotations-human-imagelabels.csv',
+    'https://storage.googleapis.com/openimages/2018_04/test/test-annotations-human-imagelabels.csv',
     'test_machine_labels':
-        'https://storage.googleapis.com/openimages/2018_04/test/test-annotations-machine-imagelabels.csv',
+    'https://storage.googleapis.com/openimages/2018_04/test/test-annotations-machine-imagelabels.csv',
     'validation_human_labels':
-        'https://storage.googleapis.com/openimages/2018_04/validation/validation-annotations-human-imagelabels.csv',
+    'https://storage.googleapis.com/openimages/2018_04/validation/validation-annotations-human-imagelabels.csv',
     'validation_machine_labels':
-        'https://storage.googleapis.com/openimages/2018_04/validation/validation-annotations-machine-imagelabels.csv',
+    'https://storage.googleapis.com/openimages/2018_04/validation/validation-annotations-machine-imagelabels.csv',
     'train-annotations-bbox':
-        'https://storage.googleapis.com/openimages/2018_04/train/train-annotations-bbox.csv',
+    'https://storage.googleapis.com/openimages/2018_04/train/train-annotations-bbox.csv',
     'test-annotations-bbox':
-        'https://storage.googleapis.com/openimages/2018_04/test/test-annotations-bbox.csv',
+    'https://storage.googleapis.com/openimages/2018_04/test/test-annotations-bbox.csv',
     'validation-annotations-bbox':
-        'https://storage.googleapis.com/openimages/2018_04/validation/validation-annotations-bbox.csv',
+    'https://storage.googleapis.com/openimages/2018_04/validation/validation-annotations-bbox.csv',
 }
 # pylint: enable=line-too-long
 

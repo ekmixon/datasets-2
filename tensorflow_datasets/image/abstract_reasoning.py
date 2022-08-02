@@ -279,8 +279,7 @@ class AbstractReasoning(tfds.core.BeamBasedBuilder):
 
     def _remove_keys(inputs):
       _, rows = inputs
-      for row in rows:
-        yield row
+      yield from rows
 
     return (pipeline
             | beam.Create([(filename, split)])

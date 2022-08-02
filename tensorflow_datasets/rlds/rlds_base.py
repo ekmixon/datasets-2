@@ -99,13 +99,12 @@ def get_log_paths(root_dir: str) -> List[str]:
   Raises:
     ValueError if the specified pattern matches a non-directory.
   """
-  paths = []
   if not tf.io.gfile.isdir(root_dir):
     raise ValueError(f'{root_dir} is not a directory.')
-  for path, _, files in tf.io.gfile.walk(root_dir):
-    if 'metadata.riegeli' in files:
-      paths.append(path)
-  return paths
+  return [
+      path for path, _, files in tf.io.gfile.walk(root_dir)
+      if 'metadata.riegeli' in files
+  ]
 
 
 def generate_examples(path):

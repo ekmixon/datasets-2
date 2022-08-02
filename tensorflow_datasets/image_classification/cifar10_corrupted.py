@@ -124,15 +124,14 @@ def _make_builder_configs():
   """
   config_list = []
   for corruption in _CORRUPTIONS:
-    for severity in range(1, 6):
-      config_list.append(
-          Cifar10CorruptedConfig(
-              name=corruption + '_' + str(severity),
-              description='Corruption method: ' + corruption +
-              ', severity level: ' + str(severity),
-              corruption_type=corruption,
-              severity=severity,
-          ))
+    config_list.extend(
+        Cifar10CorruptedConfig(
+            name=f'{corruption}_{str(severity)}',
+            description=(f'Corruption method: {corruption}' +
+                         ', severity level: ') + str(severity),
+            corruption_type=corruption,
+            severity=severity,
+        ) for severity in range(1, 6))
   return config_list
 
 

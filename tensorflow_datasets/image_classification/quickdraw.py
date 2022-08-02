@@ -77,10 +77,7 @@ class QuickdrawBitmap(tfds.core.GeneratorBasedBuilder):
   def _split_generators(self, dl_manager):
     # The QuickDraw bitmap repository is structured as one .npy file per label.
     labels = self.info.features["label"].names
-    urls = {
-        label: "{}/{}.npy".format(_QUICKDRAW_BASE_URL, label)
-        for label in labels
-    }
+    urls = {label: f"{_QUICKDRAW_BASE_URL}/{label}.npy" for label in labels}
 
     file_paths = dl_manager.download(urls)
 

@@ -62,11 +62,11 @@ class StanfordOnlineProducts(tfds.core.GeneratorBasedBuilder):
   def _split_generators(self, dl_manager):
     dl_path = dl_manager.download_and_extract(_DOWNLOAD_LINK)
     folder_path = os.path.join(dl_path, "Stanford_Online_Products")
-    return [  # pylint:disable=g-complex-comprehension
+    return [
         tfds.core.SplitGenerator(
             name=k,
-            gen_kwargs={"file_path": os.path.join(folder_path, "%s.txt" % v)})
-        for k, v in _SPLITS.items()
+            gen_kwargs={"file_path": os.path.join(folder_path, f"{v}.txt")},
+        ) for k, v in _SPLITS.items()
     ]
 
   def _generate_examples(self, file_path):

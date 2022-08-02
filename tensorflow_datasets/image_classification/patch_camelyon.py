@@ -65,12 +65,12 @@ class PatchCamelyon(tfds.core.GeneratorBasedBuilder):
   def _split_generators(self, dl_manager):
     base_url = 'https://zenodo.org/record/2546921/files/'
     resources = {
-        'test_x': base_url + 'camelyonpatch_level_2_split_test_x.h5.gz',
-        'test_y': base_url + 'camelyonpatch_level_2_split_test_y.h5.gz',
-        'train_x': base_url + 'camelyonpatch_level_2_split_train_x.h5.gz',
-        'train_y': base_url + 'camelyonpatch_level_2_split_train_y.h5.gz',
-        'valid_x': base_url + 'camelyonpatch_level_2_split_valid_x.h5.gz',
-        'valid_y': base_url + 'camelyonpatch_level_2_split_valid_y.h5.gz',
+        'test_x': f'{base_url}camelyonpatch_level_2_split_test_x.h5.gz',
+        'test_y': f'{base_url}camelyonpatch_level_2_split_test_y.h5.gz',
+        'train_x': f'{base_url}camelyonpatch_level_2_split_train_x.h5.gz',
+        'train_y': f'{base_url}camelyonpatch_level_2_split_train_y.h5.gz',
+        'valid_x': f'{base_url}camelyonpatch_level_2_split_valid_x.h5.gz',
+        'valid_y': f'{base_url}camelyonpatch_level_2_split_valid_y.h5.gz',
     }
     paths = dl_manager.download_and_extract(resources)
     return [
@@ -95,8 +95,8 @@ class PatchCamelyon(tfds.core.GeneratorBasedBuilder):
     """
     h5py = tfds.core.lazy_imports.h5py
 
-    filepath_x = paths[split + '_x']
-    filepath_y = paths[split + '_y']
+    filepath_x = paths[f'{split}_x']
+    filepath_y = paths[f'{split}_y']
     with h5py.File(filepath_x, 'r') as f_x, h5py.File(filepath_y, 'r') as f_y:
       images = f_x['x']
       labels = f_y['y']  # Note: Labels are in a N x 1 x 1 x 1 tensor.

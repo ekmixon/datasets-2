@@ -75,8 +75,7 @@ def show_examples(ds: tf.data.Dataset, ds_info: dataset_info.DatasetInfo,
     if visualizer.match(ds_info):
       return visualizer.show(ds, ds_info, **options_kwargs)
 
-  raise ValueError('Visualisation not supported for dataset `{}`'.format(
-      ds_info.name))
+  raise ValueError(f'Visualisation not supported for dataset `{ds_info.name}`')
 
 
 def show_statistics(
@@ -124,8 +123,8 @@ def show_statistics(
 
   if split not in ds_info.splits:
     raise ValueError(
-        'Invalid requested split: \'{}\'. Only {} are availables.'.format(
-            split, list(ds_info.splits)))
+        f"Invalid requested split: \'{split}\'. Only {list(ds_info.splits)} are availables."
+    )
 
   # Creates the statistics.
   statistics = statistics_pb2.DatasetFeatureStatisticsList()

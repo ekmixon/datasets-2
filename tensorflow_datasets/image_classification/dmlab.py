@@ -109,13 +109,10 @@ class Dmlab(tfds.core.GeneratorBasedBuilder):
         "label": tf.io.FixedLenFeature(shape=[], dtype=tf.int64),
     }
 
-    parse_single = tf.io.parse_single_example(example_proto, feature_map)
-
-    return parse_single
+    return tf.io.parse_single_example(example_proto, feature_map)
 
   def _generate_examples(self, images_dir_path, split_name):
-    path_glob = os.path.join(images_dir_path,
-                             "dmlab-{}.tfrecord*".format(split_name))
+    path_glob = os.path.join(images_dir_path, f"dmlab-{split_name}.tfrecord*")
     files = tf.io.gfile.glob(path_glob)
 
     logging.info("Reading data from %s.", ",".join(files))

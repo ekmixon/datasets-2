@@ -106,8 +106,8 @@ class Version(object):
       return Version(other)
     elif isinstance(other, Version):
       return other
-    raise AssertionError("{} (type {}) cannot be compared to version.".format(
-        other, type(other)))
+    raise AssertionError(
+        f"{other} (type {type(other)}) cannot be compared to version.")
 
   def __eq__(self, other):
     other = self._validate_operand(other)
@@ -161,11 +161,9 @@ def _str_to_version(version_str, allow_wildcard=False):
   reg = _VERSION_WILDCARD_REG if allow_wildcard else _VERSION_RESOLVED_REG
   res = reg.match(version_str)
   if not res:
-    msg = "Invalid version '{}'. Format should be x.y.z".format(version_str)
-    if allow_wildcard:
-      msg += " with {x,y,z} being digits or wildcard."
-    else:
-      msg += " with {x,y,z} being digits."
+    msg = f"Invalid version '{version_str}'. Format should be x.y.z" + (
+        " with {x,y,z} being digits or wildcard."
+        if allow_wildcard else " with {x,y,z} being digits.")
     raise ValueError(msg)
   return tuple(
       v if v == "*" else int(v)  # pylint:disable=g-complex-comprehension

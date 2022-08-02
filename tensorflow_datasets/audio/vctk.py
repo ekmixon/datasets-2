@@ -148,8 +148,8 @@ class Vctk(tfds.core.GeneratorBasedBuilder):
   def _generate_examples(self, extracted_dir):
     """Yields examples."""
     speech_dir = "wav48_silence_trimmed"
-    mic = "_%s" % self.builder_config.name
-    speech_glob = os.path.join(extracted_dir, speech_dir, "*", "*%s.flac" % mic)
+    mic = f"_{self.builder_config.name}"
+    speech_glob = os.path.join(extracted_dir, speech_dir, "*", f"*{mic}.flac")
     for speech_path in tf.io.gfile.glob(speech_glob):
       text_path = speech_path.replace(speech_dir, "txt").split(mic)[0] + ".txt"
       key, _ = os.path.splitext(os.path.basename(text_path))

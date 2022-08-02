@@ -123,11 +123,9 @@ _GAMES = [
 def _builder_configs():
   configs = []
   for game in _GAMES:
-    for run in range(1, 6):
-      # pytype: disable=wrong-keyword-args
-      configs.append(
-          BuilderConfig(name=f'{game}_run_{run}', game=game, run=run))
-      # pytype: enable=wrong-keyword-args
+    configs.extend(
+        BuilderConfig(name=f'{game}_run_{run}', game=game, run=run)
+        for run in range(1, 6))
   return configs
 
 
@@ -234,7 +232,7 @@ class RluAtari(rlu_common.RLUBuilder):
       # If the episode ends in a terminal state, in the last step only the
       # observation has valid information (the terminal state).
       discounts = tf.concat([discounts[1:], [0.]], axis=0)
-    episode = {
+    return {
         # Episode Metadata
         'episode_id': data['episode_id'],
         'episode_return': data['episode_return'],
@@ -248,6 +246,5 @@ class RluAtari(rlu_common.RLUBuilder):
             'is_first': is_first,
             'is_last': is_last,
             'is_terminal': is_terminal,
-        }
+        },
     }
-    return episode

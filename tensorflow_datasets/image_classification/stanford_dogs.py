@@ -114,10 +114,10 @@ class StanfordDogs(tfds.core.GeneratorBasedBuilder):
 
       if "train" in fname:
         train_list, train_mat_arr = parse_mat_file(full_file_name)
-        label_names = set([  # Set to remove duplicates
-            os.path.split(element)[-2].lower()  # Extract path/label/img.jpg
+        label_names = {
+            os.path.split(element)[-2].lower()
             for element in train_mat_arr["file_list"]
-        ])
+        }
       elif "test" in fname:
         test_list, _ = parse_mat_file(full_file_name)
 

@@ -95,7 +95,7 @@ class RegisteredTest(testing.TestCase):
 
   def test_builder_with_kwargs(self):
     name = "empty_dataset_builder"
-    name_with_kwargs = name + "/k1=1,k2=1.,k3=foo,k4=True,k5=False"
+    name_with_kwargs = f"{name}/k1=1,k2=1.,k3=foo,k4=True,k5=False"
     builder = load.builder(name_with_kwargs, data_dir="bar")
     expectations = [("k1", 1), ("k2", 1.), ("k3", u"foo"), ("k4", True),
                     ("k5", False)]

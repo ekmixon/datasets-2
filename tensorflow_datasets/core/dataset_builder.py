@@ -254,8 +254,7 @@ class DatasetBuilder(registered.RegisteredDataset):
       if requested_version is None or version.match(requested_version):
         return version
     available_versions = [str(v) for v in self.versions]
-    msg = "Dataset {} cannot be loaded at version {}, only: {}.".format(
-        self.name, requested_version, ", ".join(available_versions))
+    msg = f'Dataset {self.name} cannot be loaded at version {requested_version}, only: {", ".join(available_versions)}.'
     raise AssertionError(msg)
 
   @property
@@ -356,13 +355,8 @@ class DatasetBuilder(registered.RegisteredDataset):
       available_to_prepare = ", ".join(
           str(v) for v in self.versions if not v.tfds_version_to_prepare)
       raise AssertionError(
-          "The version of the dataset you are trying to use ({}:{}) can only "
-          "be generated using TFDS code synced @ {} or earlier. Either sync to "
-          "that version of TFDS to first prepare the data or use another "
-          "version of the dataset (available for `download_and_prepare`: "
-          "{}).".format(self.name, self.version,
-                        self.version.tfds_version_to_prepare,
-                        available_to_prepare))
+          f"The version of the dataset you are trying to use ({self.name}:{self.version}) can only be generated using TFDS code synced @ {self.version.tfds_version_to_prepare} or earlier. Either sync to that version of TFDS to first prepare the data or use another version of the dataset (available for `download_and_prepare`: {available_to_prepare})."
+      )
 
     # Only `cls.VERSION` or `experimental_latest` versions can be generated.
     # Otherwise, users may accidentally generate an old version using the
@@ -371,21 +365,11 @@ class DatasetBuilder(registered.RegisteredDataset):
         str(v) for v in (self.canonical_version, max(self.versions))
     }
     if str(self.version) not in installable_versions:
-      msg = ("The version of the dataset you are trying to use ({}) is too "
-             "old for this version of TFDS so cannot be generated.").format(
-                 self.info.full_name)
-      if self.version.tfds_version_to_prepare:
-        msg += (
-            "{} can only be generated using TFDS code synced @ {} or earlier "
-            "Either sync to that version of TFDS to first prepare the data or "
-            "use another version of the dataset. ").format(
-                self.version, self.version.tfds_version_to_prepare)
-      else:
-        msg += (
-            "Either sync to a previous version of TFDS to first prepare the "
-            "data or use another version of the dataset. ")
-      msg += "Available for `download_and_prepare`: {}".format(
-          list(sorted(installable_versions)))
+      msg = f"The version of the dataset you are trying to use ({self.info.full_name}) is too old for this version of TFDS so cannot be generated."
+      msg += (
+          "Either sync to a previous version of TFDS to first prepare the "
+          "data or use another version of the dataset. ")
+      msg += f"Available for `download_and_prepare`: {list(sorted(installable_versions))}"
       raise ValueError(msg)
 
     # Currently it's not possible to overwrite the data because it would
@@ -393,22 +377,16 @@ class DatasetBuilder(registered.RegisteredDataset):
     # it will always be reloaded and data_dir will be set at construction.
     if data_exists:
       raise ValueError(
-          "Trying to overwrite an existing dataset {} at {}. A dataset with "
-          "the same version {} already exists. If the dataset has changed, "
-          "please update the version number.".format(self.name, self._data_dir,
-                                                     self.version))
+          f"Trying to overwrite an existing dataset {self.name} at {self._data_dir}. A dataset with the same version {self.version} already exists. If the dataset has changed, please update the version number."
+      )
 
     logging.info("Generating dataset %s (%s)", self.name, self._data_dir)
     if not utils.has_sufficient_disk_space(
         self.info.dataset_size + self.info.download_size,
         directory=self._data_dir_root):
       raise IOError(
-          "Not enough disk space. Needed: {} (download: {}, generated: {})"
-          .format(
-              self.info.dataset_size + self.info.download_size,
-              self.info.download_size,
-              self.info.dataset_size,
-          ))
+          f"Not enough disk space. Needed: {self.info.dataset_size + self.info.download_size} (download: {self.info.download_size}, generated: {self.info.dataset_size})"
+      )
     self._log_download_bytes()
 
     dl_manager = self._make_download_manager(
@@ -561,8 +539,7 @@ class DatasetBuilder(registered.RegisteredDataset):
         read_config=read_config,
         as_supervised=as_supervised,
     )
-    all_ds = tf.nest.map_structure(build_single_dataset, split)
-    return all_ds
+    return tf.nest.map_structure(build_single_dataset, split)
 
   def _build_single_dataset(
       self,
@@ -634,9 +611,7 @@ class DatasetBuilder(registered.RegisteredDataset):
     # If shuffle is False, keep the default value (deterministic), which
     # allow the user to overwritte it.
 
-    if wants_full_dataset:
-      return tf_compat.get_single_element(ds)
-    return ds
+    return tf_compat.get_single_element(ds) if wants_full_dataset else ds
 
   def _should_cache_ds(self, split, shuffle_files, read_config):
     """Returns True if TFDS should auto-cache the dataset."""
@@ -667,26 +642,17 @@ class DatasetBuilder(registered.RegisteredDataset):
     # An exception is for single shard (as shuffling is a no-op).
     # Another exception is if reshuffle is disabled (shuffling already cached)
     num_shards = len(self.info.splits[split].file_instructions)
-    if (shuffle_files and
-        # Shuffling only matter when reshuffle is True or None (default)
-        read_config.shuffle_reshuffle_each_iteration is not False and  # pylint: disable=g-bool-id-comparison
-        num_shards > 1):
-      return False
-
-    # If the dataset satisfy all the right conditions, activate autocaching.
-    return True
+    return (not shuffle_files
+            or read_config.shuffle_reshuffle_each_iteration is False
+            or num_shards <= 1)
 
   def _relative_data_dir(self, with_version=True):
     """Relative path of this dataset in data_dir."""
     builder_data_dir = self.name
-    builder_config = self._builder_config
-    if builder_config:
+    if builder_config := self._builder_config:
       builder_data_dir = os.path.join(builder_data_dir, builder_config.name)
-    if not with_version:
-      return builder_data_dir
-
-    version_data_dir = os.path.join(builder_data_dir, str(self._version))
-    return version_data_dir
+    return (os.path.join(builder_data_dir, str(self._version))
+            if with_version else builder_data_dir)
 
   def _build_data_dir(self, given_data_dir):
     """Return the data directory for the current version.
@@ -721,9 +687,8 @@ class DatasetBuilder(registered.RegisteredDataset):
 
     if len(requested_version_dirs) > 1:
       raise ValueError(
-          "Dataset was found in more than one directory: {}. Please resolve "
-          "the ambiguity by explicitly specifying `data_dir=`."
-          "".format(requested_version_dirs.values()))
+          f"Dataset was found in more than one directory: {requested_version_dirs.values()}. Please resolve the ambiguity by explicitly specifying `data_dir=`."
+      )
     elif len(requested_version_dirs) == 1:  # The dataset is found once
       return next(iter(requested_version_dirs.items()))
 
@@ -858,20 +823,20 @@ class DatasetBuilder(registered.RegisteredDataset):
       name = builder_config
       builder_config = self.builder_configs.get(name)
       if builder_config is None:
-        raise ValueError("BuilderConfig %s not found. Available: %s" %
-                         (name, list(self.builder_configs.keys())))
+        raise ValueError(
+            f"BuilderConfig {name} not found. Available: {list(self.builder_configs.keys())}"
+        )
     name = builder_config.name
     if not name:
-      raise ValueError("BuilderConfig must have a name, got %s" % name)
+      raise ValueError(f"BuilderConfig must have a name, got {name}")
     is_custom = name not in self.builder_configs
     if is_custom:
       logging.warning("Using custom data configuration %s", name)
-    else:
-      if builder_config is not self.builder_configs[name]:
-        raise ValueError(
-            "Cannot name a custom BuilderConfig the same as an available "
-            "BuilderConfig. Change the name. Available BuilderConfigs: %s" %
-            (list(self.builder_configs.keys())))
+    elif builder_config is not self.builder_configs[name]:
+      raise ValueError(
+          "Cannot name a custom BuilderConfig the same as an available "
+          "BuilderConfig. Change the name. Available BuilderConfigs: %s" %
+          (list(self.builder_configs.keys())))
     return builder_config
 
   @utils.classproperty
@@ -883,7 +848,7 @@ class DatasetBuilder(registered.RegisteredDataset):
     if len(config_dict) != len(cls.BUILDER_CONFIGS):
       names = [config.name for config in cls.BUILDER_CONFIGS]
       raise ValueError(
-          "Names in BUILDER_CONFIGS must not be duplicated. Got %s" % names)
+          f"Names in BUILDER_CONFIGS must not be duplicated. Got {names}")
     return config_dict
 
 
@@ -1188,7 +1153,7 @@ class BeamBasedBuilder(GeneratorBasedBuilder):
 
 def _check_split_names(split_names: Iterable[str]) -> None:
   """Check that split names are valid."""
-  if "all" in set(str(s).lower() for s in split_names):
+  if "all" in {str(s).lower() for s in split_names}:
     raise ValueError(
         "`all` is a reserved keyword. Split cannot be named like this.")
 

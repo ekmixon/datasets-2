@@ -108,12 +108,11 @@ class CreateDetectionExampleFn(beam.DoFn):
     # Image-level annotations.
     objects = []
     if self._image2labels:
-      for label, source, confidence in self._image2labels[image_id]:
-        objects.append({
-            "label": self._mid2int[label],
-            "source": source,
-            "confidence": confidence,
-        })
+      objects.extend({
+          "label": self._mid2int[label],
+          "source": source,
+          "confidence": confidence,
+      } for label, source, confidence in self._image2labels[image_id])
     # Bounding box-level annotations.
     bobjects = []
     if self._image2boxes:
@@ -178,7 +177,7 @@ def load_class_descriptions(filepath):
   with tf.io.gfile.GFile(filepath, "r") as csvfile:
     reader = csv.reader(csvfile)
     # Note: this file doesn't have any header.
-    return [row for row in reader]
+    return list(reader)
 
 
 def fill_class_names_in_tfds_info(classes_filepath, tfds_info_features):

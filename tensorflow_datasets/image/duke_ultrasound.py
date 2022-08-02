@@ -76,7 +76,7 @@ class DukeUltrasound(tfds.core.GeneratorBasedBuilder):
   def __init__(self, custom_csv_splits=None, **kwargs):
     """custom_csv_splits is a dictionary of { 'name': 'csvpaths'}."""
     super(DukeUltrasound, self).__init__(**kwargs)
-    self.custom_csv_splits = custom_csv_splits if custom_csv_splits else {}
+    self.custom_csv_splits = custom_csv_splits or {}
 
   def _info(self):
     return tfds.core.DatasetInfo(
@@ -124,15 +124,14 @@ class DukeUltrasound(tfds.core.GeneratorBasedBuilder):
             }) for name, _ in _DEFAULT_SPLITS.items()
     ]
 
-    for name, csv_path in self.custom_csv_splits.items():
-      splits.append(
-          tfds.core.SplitGenerator(
-              name=name,
-              gen_kwargs={
-                  'datapath': dl_paths['data'],
-                  'csvpath': csv_path
-              }))
-
+    splits.extend(
+        tfds.core.SplitGenerator(
+            name=name,
+            gen_kwargs={
+                'datapath': dl_paths['data'],
+                'csvpath': csv_path
+            },
+        ) for name, csv_path in self.custom_csv_splits.items())
     return splits
 
   def _generate_examples(self, datapath, csvpath):

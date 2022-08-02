@@ -250,12 +250,9 @@ class Imagenet2012(tfds.core.GeneratorBasedBuilder):
                          labels_exist=True):
     """Yields examples."""
     if not labels_exist:  # Test split
-      for key, example in self._generate_examples_test(archive):
-        yield key, example
+      yield from self._generate_examples_test(archive)
     if validation_labels:  # Validation split
-      for key, example in self._generate_examples_validation(
-          archive, validation_labels):
-        yield key, example
+      yield from self._generate_examples_validation(archive, validation_labels)
     # Training split. Main archive contains archives names after a synset noun.
     # Each sub-archive contains pictures associated to that synset.
     for fname, fobj in archive:

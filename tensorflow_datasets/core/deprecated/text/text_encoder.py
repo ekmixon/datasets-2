@@ -50,9 +50,8 @@ class TextEncoderConfig(object):
                          "vocab_size must be None")
       encoder_cls = type(encoder)
       vocab_size = encoder.vocab_size
-    else:
-      if encoder_cls is ByteTextEncoder:
-        encoder = encoder_cls()
+    elif encoder_cls is ByteTextEncoder:
+      encoder = encoder_cls()
 
     self.encoder = encoder
     self.encoder_cls = encoder_cls
@@ -205,7 +204,7 @@ class ByteTextEncoder(TextEncoder):
 
   @classmethod
   def _filename(cls, filename_prefix):
-    return filename_prefix + ".bytes"
+    return f"{filename_prefix}.bytes"
 
   def save_to_file(self, filename_prefix):
     self._write_lines_to_file(
@@ -280,7 +279,7 @@ class TokenTextEncoder(TextEncoder):
       if int_id < 0:
         int_id = self._oov_bucket(token)
         if int_id is None:
-          raise ValueError("Out of vocabulary token %s" % token)
+          raise ValueError(f"Out of vocabulary token {token}")
       ids.append(int_id)
 
     # Increment for pad id 0
@@ -328,7 +327,7 @@ class TokenTextEncoder(TextEncoder):
 
   @classmethod
   def _filename(cls, filename_prefix):
-    return filename_prefix + ".tokens"
+    return f"{filename_prefix}.tokens"
 
   def save_to_file(self, filename_prefix):
     filename = self._filename(filename_prefix)
@@ -346,8 +345,7 @@ class TokenTextEncoder(TextEncoder):
   def load_from_file(cls, filename_prefix):
     filename = cls._filename(filename_prefix)
     vocab_lines, kwargs = cls._read_lines_from_file(filename)
-    has_tokenizer = kwargs.pop("has_tokenizer", False)
-    if has_tokenizer:
+    if has_tokenizer := kwargs.pop("has_tokenizer", False):
       kwargs["tokenizer"] = Tokenizer.load_from_file(filename)
     return cls(vocab_list=vocab_lines, **kwargs)
 
@@ -387,12 +385,7 @@ class Tokenizer(object):
     """Splits a string into tokens."""
     s = tf.compat.as_text(s)
 
-    if self.reserved_tokens:
-      # First split out the reserved tokens
-      substrs = self._reserved_tokens_re.split(s)
-    else:
-      substrs = [s]
-
+    substrs = self._reserved_tokens_re.split(s) if self.reserved_tokens else [s]
     toks = []
     for substr in substrs:
       if substr in self.reserved_tokens:
@@ -408,15 +401,11 @@ class Tokenizer(object):
 
   def join(self, tokens):
     """Joins tokens into a string."""
-    if self._alphanum_only:
-      return " ".join(tokens)
-    else:
-      # Fully invertible
-      return "".join(tokens)
+    return " ".join(tokens) if self._alphanum_only else "".join(tokens)
 
   @classmethod
   def _filename(cls, filename_prefix):
-    return filename_prefix + ".tokenizer"
+    return f"{filename_prefix}.tokenizer"
 
   def save_to_file(self, filename_prefix):
     filename = self._filename(filename_prefix)
@@ -442,10 +431,7 @@ def pad_decr(ids):
   idx = -1
   while not ids[idx]:
     idx -= 1
-  if idx == -1:
-    ids = ids  # pylint: disable=self-assigning-variable
-  else:
-    ids = ids[:idx + 1]
+  ids = ids if idx == -1 else ids[:idx + 1]
   return [i - 1 for i in ids]
 
 
@@ -457,17 +443,15 @@ def pad_incr(ids):
 def _prepare_reserved_tokens(reserved_tokens):
   """Prepare reserved tokens and a regex for splitting them out of strings."""
   reserved_tokens = [tf.compat.as_text(tok) for tok in reserved_tokens or []]
-  dups = _find_duplicates(reserved_tokens)
-  if dups:
-    raise ValueError("Duplicates found in tokens: %s" % dups)
+  if dups := _find_duplicates(reserved_tokens):
+    raise ValueError(f"Duplicates found in tokens: {dups}")
   reserved_tokens_re = _make_reserved_tokens_re(reserved_tokens)
   return reserved_tokens, reserved_tokens_re
 
 
 def _re_escape(s):
   """Escape regex control characters."""
-  escaped = re.sub(r"[(){}\[\].*?|^$\\+-]", r"\\\g<0>", s)
-  return escaped
+  return re.sub(r"[(){}\[\].*?|^$\\+-]", r"\\\g<0>", s)
 
 
 def _make_reserved_tokens_re(reserved_tokens):
@@ -475,9 +459,8 @@ def _make_reserved_tokens_re(reserved_tokens):
   if not reserved_tokens:
     return None
   escaped_tokens = [_re_escape(rt) for rt in reserved_tokens]
-  pattern = "(%s)" % "|".join(escaped_tokens)
-  reserved_tokens_re = _re_compile(pattern)
-  return reserved_tokens_re
+  pattern = f'({"|".join(escaped_tokens)})'
+  return _re_compile(pattern)
 
 
 def _find_duplicates(els):
@@ -502,7 +485,7 @@ _METADATA_PREFIX = "### Metadata: "
 def write_lines_to_file(cls_name, filename, lines, metadata_dict):
   """Writes lines to file prepended by header and metadata."""
   metadata_dict = metadata_dict or {}
-  header_line = "%s%s" % (_HEADER_PREFIX, cls_name)
+  header_line = f"{_HEADER_PREFIX}{cls_name}"
   metadata_line = "%s%s" % (_METADATA_PREFIX,
                             json.dumps(metadata_dict, sort_keys=True))
   with tf.io.gfile.GFile(filename, "wb") as f:
@@ -518,7 +501,7 @@ def read_lines_from_file(cls_name, filename):
   """Read lines from file, parsing out header and metadata."""
   with tf.io.gfile.GFile(filename, "rb") as f:
     lines = [tf.compat.as_text(line)[:-1] for line in f]
-  header_line = "%s%s" % (_HEADER_PREFIX, cls_name)
+  header_line = f"{_HEADER_PREFIX}{cls_name}"
   if lines[0] != header_line:
     raise ValueError("File {fname} does not seem to have been created from "
                      "{name}.save_to_file.".format(

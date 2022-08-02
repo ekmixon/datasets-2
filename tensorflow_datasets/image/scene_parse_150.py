@@ -95,9 +95,11 @@ class SceneParse150(tfds.core.GeneratorBasedBuilder):
     for image_file in tf.io.gfile.listdir(images_dir_path):
       # get the filename
       image_id = os.path.split(image_file)[1].split(".")[0]
-      yield image_id, {
-          "image":
-              os.path.join(images_dir_path, "{}.jpg".format(image_id)),
-          "annotation":
-              os.path.join(annotations_dir_path, "{}.png".format(image_id))
-      }
+      yield (
+          image_id,
+          {
+              "image": os.path.join(images_dir_path, f"{image_id}.jpg"),
+              "annotation": os.path.join(annotations_dir_path,
+                                         f"{image_id}.png"),
+          },
+      )

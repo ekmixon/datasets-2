@@ -122,7 +122,7 @@ def _item_to_np_array(item, dtype, shape):
   utils.assert_shape_match(item.shape, shape)
   if dtype == tf.string and not _is_string(original_item):
     raise ValueError(
-        "Unsupported value: {}\nCould not convert to bytes list.".format(item))
+        f"Unsupported value: {item}\nCould not convert to bytes list.")
   return item
 
 
@@ -144,10 +144,8 @@ def _item_to_tf_feature(item, tensor_info):
     return tf.train.Feature(bytes_list=tf.train.BytesList(value=v))
   else:
     raise ValueError(
-        "Unsupported value: {}.\n"
-        "tf.train.Feature does not support type {}. "
-        "This may indicate that one of the FeatureConnectors received an "
-        "unsupported value as input.".format(repr(v), repr(type(v))))
+        f"Unsupported value: {repr(v)}.\ntf.train.Feature does not support type {repr(type(v))}. This may indicate that one of the FeatureConnectors received an unsupported value as input."
+    )
 
 
 RaggedExtraction = collections.namedtuple("RaggedExtraction", [
@@ -197,25 +195,19 @@ def _add_ragged_fields(example_data, tensor_info):
     example_data, nested_row_lengths = _extract_ragged_attributes(
         example_data, tensor_info)
 
-  # Step 2: Format the ragged tensor data as dict
-  # No sequence or 1-level sequence, forward the data.
-  # Could eventually handle multi-level sequences with static lengths
-  # in a smarter way.
   if tensor_info.sequence_rank < 2:
     return (example_data, tensor_info)
-  # Multiple level sequence:
-  else:
-    tensor_info_length = feature_lib.TensorInfo(shape=(None,), dtype=tf.int64)
-    ragged_attr_dict = {
-        "ragged_row_lengths_{}".format(i): (length, tensor_info_length)
-        for i, length in enumerate(nested_row_lengths)
-    }
-    tensor_info_flat = feature_lib.TensorInfo(
-        shape=(None,) + tensor_info.shape[tensor_info.sequence_rank:],
-        dtype=tensor_info.dtype,
-    )
-    ragged_attr_dict["ragged_flat_values"] = (example_data, tensor_info_flat)
-    return ragged_attr_dict
+  tensor_info_length = feature_lib.TensorInfo(shape=(None,), dtype=tf.int64)
+  ragged_attr_dict = {
+      f"ragged_row_lengths_{i}": (length, tensor_info_length)
+      for i, length in enumerate(nested_row_lengths)
+  }
+  tensor_info_flat = feature_lib.TensorInfo(
+      shape=(None,) + tensor_info.shape[tensor_info.sequence_rank:],
+      dtype=tensor_info.dtype,
+  )
+  ragged_attr_dict["ragged_flat_values"] = (example_data, tensor_info_flat)
+  return ragged_attr_dict
 
 
 def _extract_ragged_attributes(nested_list, tensor_info):
@@ -233,7 +225,7 @@ def _extract_ragged_attributes(nested_list, tensor_info):
       list will be converted to np.array and stacked together.
     nested_row_lengths: The row lengths for each ragged dimensions.
   """
-  assert tensor_info.sequence_rank, "{} is not ragged.".format(tensor_info)
+  assert tensor_info.sequence_rank, f"{tensor_info} is not ragged."
 
   flat_values = []
   nested_row_lengths = [[] for _ in range(tensor_info.sequence_rank)]
@@ -246,13 +238,10 @@ def _extract_ragged_attributes(nested_list, tensor_info):
           curr_ragged_rank=0,
           tensor_info=tensor_info,
       ))
-  if not flat_values:  # The full sequence is empty
-    flat_values = np.empty(
-        shape=(0,) + tensor_info.shape[tensor_info.sequence_rank:],
-        dtype=tensor_info.dtype.as_numpy_dtype,
-    )
-  else:  # Otherwise, merge all flat values together, some might be empty
-    flat_values = np.stack(flat_values)
+  flat_values = (np.stack(flat_values) if flat_values else np.empty(
+      shape=(0, ) + tensor_info.shape[tensor_info.sequence_rank:],
+      dtype=tensor_info.dtype.as_numpy_dtype,
+  ))
   return flat_values, nested_row_lengths[1:]
 
 
@@ -276,8 +265,8 @@ def _fill_ragged_attribute(ext):
   if (expected_sequence_length is not None and
       expected_sequence_length != curr_sequence_length):
     raise ValueError(
-        "Received length {} do not match the expected one {} from {}.".format(
-            curr_sequence_length, expected_sequence_length, ext.tensor_info))
+        f"Received length {curr_sequence_length} do not match the expected one {expected_sequence_length} from {ext.tensor_info}."
+    )
 
   if ext.curr_ragged_rank < ext.tensor_info.sequence_rank - 1:
     # If there are additional Sequence dimension, recurse 1 level deeper.

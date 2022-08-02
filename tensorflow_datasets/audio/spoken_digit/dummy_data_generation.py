@@ -45,9 +45,7 @@ def _output_dir():
 
 def _get_file_name():
   """Returns file name of audio file."""
-  # Example of audio file name: 7_jackson_32.wav
-  file_name = str(random.randint(0, 9))
-  file_name += "_"
+  file_name = str(random.randint(0, 9)) + "_"
   file_name += random.choice(_LIST_OF_SPEAKERS)
   file_name += "_"
   file_name += str(random.randint(0, 49))
@@ -59,8 +57,12 @@ def _generate_data():
   for _ in range(NUMBER_OF_EXAMPLES):
     wav_file = fake_data_utils.get_random_wav_c1(duration=2, sample=8000)
     filename = _get_file_name()
-    filepath = os.path.join(_output_dir(), "free-spoken-digit-dataset-1.0.9",
-                            "recordings", "{}.wav".format(filename))
+    filepath = os.path.join(
+        _output_dir(),
+        "free-spoken-digit-dataset-1.0.9",
+        "recordings",
+        f"{filename}.wav",
+    )
     dirname = os.path.dirname(filepath)
     if not tf.io.gfile.exists(dirname):
       tf.io.gfile.makedirs(dirname)

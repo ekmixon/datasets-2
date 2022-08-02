@@ -93,10 +93,8 @@ def _filename_from_content_disposition(
 
 
 def _get_filename(response: Response) -> str:
-  content_disposition = response.headers.get('content-disposition', None)
-  if content_disposition:
-    filename = _filename_from_content_disposition(content_disposition)
-    if filename:
+  if content_disposition := response.headers.get('content-disposition', None):
+    if filename := _filename_from_content_disposition(content_disposition):
       return filename
   # Otherwise, fallback on extracting the name from the url.
   return utils.basename_from_url(response.url)
@@ -205,14 +203,11 @@ class _Downloader(object):
     Raises:
       DownloadError: when download fails.
     """
-    try:
+    with contextlib.suppress(tf.errors.UnimplementedError):
       # If url is on a filesystem that gfile understands, use copy. Otherwise,
       # use requests (http) or urllib (ftp).
       if not url.startswith('http'):
         return self._sync_file_copy(url, destination_path)
-    except tf.errors.UnimplementedError:
-      pass
-
     with _open_url(url, verify=verify) as (response, iter_content):
       fname = _get_filename(response)
       path = os.path.join(destination_path, fname)
@@ -298,7 +293,7 @@ def _get_drive_url(url: str, session: requests.Session) -> str:
     _assert_status(response)
     for k, v in response.cookies.items():
       if k.startswith('download_warning'):
-        return url + '&confirm=' + v  # v is the confirm token
+        return f'{url}&confirm={v}'
   # No token found, let's try with original URL:
   return url
 
@@ -306,5 +301,6 @@ def _get_drive_url(url: str, session: requests.Session) -> str:
 def _assert_status(response: requests.Response) -> None:
   """Ensure the URL response is 200."""
   if response.status_code != 200:
-    raise DownloadError('Failed to get url {}. HTTP code: {}.'.format(
-        response.url, response.status_code))
+    raise DownloadError(
+        f'Failed to get url {response.url}. HTTP code: {response.status_code}.'
+    )

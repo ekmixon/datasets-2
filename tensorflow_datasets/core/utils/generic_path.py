@@ -102,7 +102,7 @@ def as_path(path: PathLike) -> ReadWritePath:
     uri_splits = path.split('://', maxsplit=1)
     if len(uri_splits) > 1:  # str is URI (e.g. `gs://`, `github://`,...)
       # On windows, `PosixGPath` is created for `gs://` paths
-      return _URI_PREFIXES_TO_CLS[uri_splits[0] + '://'](path)  # pytype: disable=bad-return-type
+      return _URI_PREFIXES_TO_CLS[f'{uri_splits[0]}://'](path)
     elif is_windows:
       return gpath.WindowsGPath(path)
     else:

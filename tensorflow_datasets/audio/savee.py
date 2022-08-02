@@ -76,7 +76,7 @@ def _compute_split_boundaries(split_probs, n_items):
                          splits=len(split_probs), items=n_items))
   total_probs = sum(p for name, p in split_probs)
   if abs(1 - total_probs) > 1E-8:
-    raise ValueError('Probs should sum up to 1. probs={}'.format(split_probs))
+    raise ValueError(f'Probs should sum up to 1. probs={split_probs}')
   split_boundaries = []
   sum_p = 0.0
   for name, p in split_probs:
@@ -106,7 +106,7 @@ def _get_inter_splits_by_group(items_and_groups, split_probs, split_number):
   Returns:
     Dictionary that looks like {split name -> set(ids)}.
   """
-  groups = sorted(set(group_id for item_id, group_id in items_and_groups))
+  groups = sorted({group_id for item_id, group_id in items_and_groups})
   rng = np.random.RandomState(split_number)
   rng.shuffle(groups)
 
@@ -156,14 +156,14 @@ class Savee(tfds.core.GeneratorBasedBuilder):
     zip_path = os.path.join(dl_manager.manual_dir, 'AudioData.zip')
     if not tf.io.gfile.exists(zip_path):
       raise AssertionError(
-          'SAVEE requires manual download of the data. Please download '
-          'the audio data and place it into: {}'.format(zip_path))
+          f'SAVEE requires manual download of the data. Please download the audio data and place it into: {zip_path}'
+      )
     # Need to extract instead of reading directly from archive since reading
     # audio files from zip archive is not supported.
     extract_path = dl_manager.extract(zip_path)
 
     items_and_groups = []
-    for fname in tf.io.gfile.glob('{}/AudioData/*/*.wav'.format(extract_path)):
+    for fname in tf.io.gfile.glob(f'{extract_path}/AudioData/*/*.wav'):
       folder, _ = os.path.split(fname)
       _, speaker_id = os.path.split(folder)
       items_and_groups.append((fname, speaker_id))
@@ -191,7 +191,7 @@ class Savee(tfds.core.GeneratorBasedBuilder):
     for fname in file_names:
       folder, wavname = os.path.split(fname)
       _, speaker_id = os.path.split(folder)
-      label_abbrev = re.match('^([a-zA-Z]+)', wavname).group(1)  # pytype: disable=attribute-error
+      label_abbrev = re.match('^([a-zA-Z]+)', wavname)[1]
       label = LABEL_MAP[label_abbrev]
-      key = '{}_{}'.format(speaker_id, wavname.split('.')[0])
+      key = f"{speaker_id}_{wavname.split('.')[0]}"
       yield key, {'audio': fname, 'label': label, 'speaker_id': speaker_id}

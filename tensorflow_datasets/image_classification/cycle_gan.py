@@ -65,7 +65,7 @@ class CycleGANConfig(tfds.core.BuilderConfig):
       **kwargs: keyword arguments forwarded to super.
     """
     if data not in _DATA_OPTIONS:
-      raise ValueError("data must be one of %s" % _DATA_OPTIONS)
+      raise ValueError(f"data must be one of {_DATA_OPTIONS}")
 
     super(CycleGANConfig, self).__init__(**kwargs)
     self.data = data

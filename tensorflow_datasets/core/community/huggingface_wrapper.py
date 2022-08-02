@@ -96,15 +96,8 @@ class GeneratorBasedBuilder(
   DEFAULT_CONFIG_NAME = None
 
   def __init_subclass__(cls, **kwargs):
-    # In HF, default config is explicitly defined
     if cls.DEFAULT_CONFIG_NAME:
-      if not cls.BUILDER_CONFIGS:
-        # If no config is defined, HF implicitly create a
-        # default config (e.g. `clickbait_news_bg`)
-        cls.BUILDER_CONFIGS = [
-            cls.BUILDER_CONFIG_CLASS(name=cls.DEFAULT_CONFIG_NAME)
-        ]
-      else:
+      if cls.BUILDER_CONFIGS:
         # Should re-order config so that the first config
         # is the default one
         name_to_configs = {c.name: c for c in cls.BUILDER_CONFIGS}
@@ -113,6 +106,12 @@ class GeneratorBasedBuilder(
             config for name, config in name_to_configs.items()
             if name != cls.DEFAULT_CONFIG_NAME)
         cls.BUILDER_CONFIGS = new_ordered_configs
+      else:
+        # If no config is defined, HF implicitly create a
+        # default config (e.g. `clickbait_news_bg`)
+        cls.BUILDER_CONFIGS = [
+            cls.BUILDER_CONFIG_CLASS(name=cls.DEFAULT_CONFIG_NAME)
+        ]
     super().__init_subclass__(**kwargs)
 
   @utils.memoized_property

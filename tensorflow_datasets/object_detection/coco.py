@@ -178,37 +178,44 @@ class Coco(tfds.core.GeneratorBasedBuilder):
     }
     # Either uses panotptic or original annotations
     if self.builder_config.has_panoptic:
-      features.update({
+      features |= {
           'panoptic_image':
-              tfds.features.Image(encoding_format='png'),
+          tfds.features.Image(encoding_format='png'),
           'panoptic_image/filename':
-              tfds.features.Text(),
+          tfds.features.Text(),
           'panoptic_objects':
-              tfds.features.Sequence({
-                  'id': tf.int64,
-                  # Coco has unique id for each annotation. The id can be used
-                  # for mapping panoptic image to semantic segmentation label.
-                  'area': tf.int64,
-                  'bbox': tfds.features.BBoxFeature(),
-                  # Coco2017 has 200 categories but only 133 are present in the
-                  # dataset
-                  'label': tfds.features.ClassLabel(num_classes=133),
-                  'is_crowd': tf.bool,
-              }),
-      })
+          tfds.features.Sequence({
+              'id':
+              tf.int64,
+              # Coco has unique id for each annotation. The id can be used
+              # for mapping panoptic image to semantic segmentation label.
+              'area':
+              tf.int64,
+              'bbox':
+              tfds.features.BBoxFeature(),
+              # Coco2017 has 200 categories but only 133 are present in the
+              # dataset
+              'label':
+              tfds.features.ClassLabel(num_classes=133),
+              'is_crowd':
+              tf.bool,
+          }),
+      }
     else:
-      features.update({
-          'objects':
-              tfds.features.Sequence({
-                  'id': tf.int64,
-                  # Coco has unique id for each annotation. The id can be used
-                  # for mapping panoptic image to semantic segmentation label.
-                  'area': tf.int64,
-                  'bbox': tfds.features.BBoxFeature(),
-                  # Coco has 91 categories but only 80 appear in the dataset
-                  'label': tfds.features.ClassLabel(num_classes=80),
-                  'is_crowd': tf.bool,
-              }),
+      features['objects'] = tfds.features.Sequence({
+          'id':
+          tf.int64,
+          # Coco has unique id for each annotation. The id can be used
+          # for mapping panoptic image to semantic segmentation label.
+          'area':
+          tf.int64,
+          'bbox':
+          tfds.features.BBoxFeature(),
+          # Coco has 91 categories but only 80 appear in the dataset
+          'label':
+          tfds.features.ClassLabel(num_classes=80),
+          'is_crowd':
+          tf.bool,
       })
     # More info could be added, like segmentation (as png mask), captions,
     # person key-points, more metadata (original flickr url,...).
@@ -231,9 +238,8 @@ class Coco(tfds.core.GeneratorBasedBuilder):
     # Merge urls from all splits together
     urls = {}
     for split in self.builder_config.splits:
-      urls['{}_images'.format(split.name)] = 'zips/{}.zip'.format(split.images)
-      urls['{}_annotations'.format(split.name)] = 'annotations/{}.zip'.format(
-          split.annotations)
+      urls[f'{split.name}_images'] = f'zips/{split.images}.zip'
+      urls[f'{split.name}_annotations'] = f'annotations/{split.annotations}.zip'
 
     # DownloadManager memoize the url, so duplicate urls will only be downloaded
     # once.
@@ -243,15 +249,13 @@ class Coco(tfds.core.GeneratorBasedBuilder):
 
     splits = []
     for split in self.builder_config.splits:
-      image_dir = extracted_paths['{}_images'.format(split.name)]
-      annotations_dir = extracted_paths['{}_annotations'.format(split.name)]
+      image_dir = extracted_paths[f'{split.name}_images']
+      annotations_dir = extracted_paths[f'{split.name}_annotations']
       if self.builder_config.has_panoptic:
-        panoptic_image_zip_path = os.path.join(
-            annotations_dir, 'annotations',
-            'panoptic_{}.zip'.format(split.images))
+        panoptic_image_zip_path = os.path.join(annotations_dir, 'annotations',
+                                               f'panoptic_{split.images}.zip')
         panoptic_dir = dl_manager.extract(panoptic_image_zip_path)
-        panoptic_dir = os.path.join(panoptic_dir,
-                                    'panoptic_{}'.format(split.images))
+        panoptic_dir = os.path.join(panoptic_dir, f'panoptic_{split.images}')
       else:
         panoptic_dir = None
       splits.append(

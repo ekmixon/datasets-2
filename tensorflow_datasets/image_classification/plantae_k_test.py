@@ -15,8 +15,11 @@
 
 """Test for the PlantLeaves dataset."""
 
+
 from tensorflow_datasets import testing
 from tensorflow_datasets.image_classification import plantae_k
+
+
 
 
 class PlantaeKTest(testing.DatasetBuilderTestCase):
@@ -32,8 +35,9 @@ class PlantaeKTest(testing.DatasetBuilderTestCase):
   # we have to have both walnut_d and walnut_h for healthy walnut.
   DL_EXTRACT_RESULT = {
       fname: fname
-      for fname in ["{}1.JPG".format(label_tag) for label_tag in _LABEL_TAGS]
+      for fname in [f"{label_tag}1.JPG" for label_tag in _LABEL_TAGS]
   }
+
 
 
 if __name__ == "__main__":

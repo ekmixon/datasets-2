@@ -219,8 +219,10 @@ class Voc(tfds.core.GeneratorBasedBuilder):
     """Yields examples."""
     set_filepath = os.path.join(
         data_path,
-        os.path.normpath("VOCdevkit/VOC{}/ImageSets/Main/{}.txt".format(
-            self.builder_config.year, set_name)))
+        os.path.normpath(
+            f"VOCdevkit/VOC{self.builder_config.year}/ImageSets/Main/{set_name}.txt"
+        ),
+    )
     load_annotations = (
         self.builder_config.has_test_annotations or set_name != "test")
     with tf.io.gfile.GFile(set_filepath, "r") as f:
@@ -232,25 +234,30 @@ class Voc(tfds.core.GeneratorBasedBuilder):
   def _generate_example(self, data_path, image_id, load_annotations):
     image_filepath = os.path.join(
         data_path,
-        os.path.normpath("VOCdevkit/VOC{}/JPEGImages/{}.jpg".format(
-            self.builder_config.year, image_id)))
+        os.path.normpath(
+            f"VOCdevkit/VOC{self.builder_config.year}/JPEGImages/{image_id}.jpg"
+        ),
+    )
     annon_filepath = os.path.join(
         data_path,
-        os.path.normpath("VOCdevkit/VOC{}/Annotations/{}.xml".format(
-            self.builder_config.year, image_id)))
+        os.path.normpath(
+            f"VOCdevkit/VOC{self.builder_config.year}/Annotations/{image_id}.xml"
+        ),
+    )
     if load_annotations:
       objects = list(_get_example_objects(annon_filepath))
       # Use set() to remove duplicates
-      labels = sorted(set(obj["label"] for obj in objects))
+      labels = sorted({obj["label"] for obj in objects})
       labels_no_difficult = sorted(
-          set(obj["label"] for obj in objects if obj["is_difficult"] == 0))
+          {obj["label"]
+           for obj in objects if obj["is_difficult"] == 0})
     else:  # The test set of VOC2012 does not contain annotations
       objects = []
       labels = []
       labels_no_difficult = []
     return {
         "image": image_filepath,
-        "image/filename": image_id + ".jpg",
+        "image/filename": f"{image_id}.jpg",
         "objects": objects,
         "labels": labels,
         "labels_no_difficult": labels_no_difficult,

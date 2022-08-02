@@ -39,7 +39,7 @@ class BenchmarkResult:
 
   def _repr_html_(self) -> str:
     """Colab/notebook representation."""
-    return '<strong>BenchmarkResult:</strong><br/>' + self.stats._repr_html_()  # pylint: disable=protected-access
+    return f'<strong>BenchmarkResult:</strong><br/>{self.stats._repr_html_()}'
 
 
 def benchmark(
@@ -95,8 +95,7 @@ def benchmark(
 
   if num_iter and i < num_iter:
     logging.warning(
-        'Number of iteration shorter than expected ({} vs {})'.format(
-            i, num_iter))
+        f'Number of iteration shorter than expected ({i} vs {num_iter})')
   if i == -1:  # No iteration besides the second batch
     end_time = first_batch_time
 

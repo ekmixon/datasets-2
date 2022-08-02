@@ -207,12 +207,11 @@ class CelebA(tfds.core.GeneratorBasedBuilder):
     for file_name in sorted(files):
       record = {
           "image": downloaded_images[file_name],
-          "landmarks": {
-              k: v for k, v in zip(landmarks[0], landmarks[1][file_name])
-          },
+          "landmarks": dict(zip(landmarks[0], landmarks[1][file_name])),
           "attributes": {
               # atributes value are either 1 or -1, so convert to bool
-              k: v > 0 for k, v in zip(attributes[0], attributes[1][file_name])
+              k: v > 0
+              for k, v in zip(attributes[0], attributes[1][file_name])
           },
       }
       yield file_name, record

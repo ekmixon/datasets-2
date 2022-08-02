@@ -161,10 +161,10 @@ class SubwordTextEncoder(text_encoder.TextEncoder):
 
   def _byte_encode(self, token):
     """Encode a single token byte-wise into integer ids."""
-    # Vocab ids for all bytes follow ids for the subwords
-    offset = len(self._subwords)
     if token == "_":
       return [len(self._subwords) + ord(" ")]
+    # Vocab ids for all bytes follow ids for the subwords
+    offset = len(self._subwords)
     return [i + offset for i in list(bytearray(tf.compat.as_bytes(token)))]
 
   def _id_to_subword(self, subword_id):
@@ -176,12 +176,10 @@ class SubwordTextEncoder(text_encoder.TextEncoder):
     if 0 <= subword_id < len(self._subwords):
       # Subword
       return self._subwords[subword_id]
-    else:
-      # Byte
-      offset = len(self._subwords)
-      subword_id -= offset
-      bytestr = bytes(bytearray([subword_id]))
-      return bytestr
+    # Byte
+    offset = len(self._subwords)
+    subword_id -= offset
+    return bytes(bytearray([subword_id]))
 
   def _token_to_subwords(self, token):
     """Greedily split token into subwords."""
@@ -225,7 +223,7 @@ class SubwordTextEncoder(text_encoder.TextEncoder):
 
     # Setup tokenizer
     # Reserved tokens are all tokens that are mixed alphanum and non-alphanum.
-    reserved_tokens = set([_UNDERSCORE_REPLACEMENT])
+    reserved_tokens = {_UNDERSCORE_REPLACEMENT}
     for t in self._subwords:
       if text_encoder.is_mixed_alphanum(t):
         reserved_tokens.add(t)
@@ -234,7 +232,7 @@ class SubwordTextEncoder(text_encoder.TextEncoder):
 
   @classmethod
   def _filename(cls, filename_prefix):
-    return filename_prefix + ".subwords"
+    return f"{filename_prefix}.subwords"
 
   def save_to_file(self, filename_prefix):
     """Save the vocabulary to a file."""
@@ -425,15 +423,11 @@ def _validate_build_arguments(max_subword_length, reserved_tokens,
 
 
 def _trim_underscore(token):
-  if token.endswith("_"):
-    return token[:-1]
-  return token
+  return token[:-1] if token.endswith("_") else token
 
 
 def _trim_underscore_and_tell(token):
-  if token.endswith("_"):
-    return token[:-1], True
-  return token, False
+  return (token[:-1], True) if token.endswith("_") else (token, False)
 
 
 def _escape(s):

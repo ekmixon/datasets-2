@@ -125,8 +125,8 @@ class TranslationVariableLanguagesFeatureTest(
     self.assertFeature(
         feature=features.TranslationVariableLanguages(),
         shape={
-            "language": (None,),
-            "translation": (None,)
+            "language": (None, ),
+            "translation": (None, )
         },
         dtype={
             "language": tf.string,
@@ -142,9 +142,10 @@ class TranslationVariableLanguagesFeatureTest(
                     "language": [EN_B, ZH_B],
                     "translation": [
                         tf.compat.as_bytes(EN_HELLO),
-                        tf.compat.as_bytes(ZH_HELLO)
-                    ]
-                }),
+                        tf.compat.as_bytes(ZH_HELLO),
+                    ],
+                },
+            ),
             testing.FeatureExpectationItem(
                 value={
                     "fr": FR_HELLO,
@@ -156,22 +157,24 @@ class TranslationVariableLanguagesFeatureTest(
                     "translation": [
                         tf.compat.as_bytes(DE_HELLO),
                         tf.compat.as_bytes(FR_HELLO),
-                        tf.compat.as_bytes(ZH_HELLO)
-                    ]
-                }),
+                        tf.compat.as_bytes(ZH_HELLO),
+                    ],
+                },
+            ),
             testing.FeatureExpectationItem(
                 value={
-                    "fr": [FR_HELLO, FR_HELLO[0:-1]],
+                    "fr": [FR_HELLO, FR_HELLO[:-1]],
                     "en": EN_HELLO
                 },
                 expected={
                     "language": [EN_B, FR_B, FR_B],
                     "translation": [
                         tf.compat.as_bytes(EN_HELLO),
-                        tf.compat.as_bytes(FR_HELLO[0:-1]),
-                        tf.compat.as_bytes(FR_HELLO)
-                    ]
-                }),
+                        tf.compat.as_bytes(FR_HELLO[:-1]),
+                        tf.compat.as_bytes(FR_HELLO),
+                    ],
+                },
+            ),
         ],
     )
 

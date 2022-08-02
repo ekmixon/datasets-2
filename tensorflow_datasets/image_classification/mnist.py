@@ -310,17 +310,13 @@ class EMNIST(MNIST):
   def _split_generators(self, dl_manager):
     filenames = {
         "train_data":
-            "emnist-{}-train-images-idx3-ubyte.gz".format(
-                self.builder_config.name),
+        f"emnist-{self.builder_config.name}-train-images-idx3-ubyte.gz",
         "train_labels":
-            "emnist-{}-train-labels-idx1-ubyte.gz".format(
-                self.builder_config.name),
+        f"emnist-{self.builder_config.name}-train-labels-idx1-ubyte.gz",
         "test_data":
-            "emnist-{}-test-images-idx3-ubyte.gz".format(
-                self.builder_config.name),
+        f"emnist-{self.builder_config.name}-test-images-idx3-ubyte.gz",
         "test_labels":
-            "emnist-{}-test-labels-idx1-ubyte.gz".format(
-                self.builder_config.name),
+        f"emnist-{self.builder_config.name}-test-labels-idx1-ubyte.gz",
     }
 
     dir_name = os.path.join(dl_manager.download_and_extract(self.URL), "gzip")
@@ -349,16 +345,14 @@ def _extract_mnist_images(image_filepath, num_images):
   with tf.io.gfile.GFile(image_filepath, "rb") as f:
     f.read(16)  # header
     buf = f.read(_MNIST_IMAGE_SIZE * _MNIST_IMAGE_SIZE * num_images)
-    data = np.frombuffer(
+    return np.frombuffer(
         buf,
         dtype=np.uint8,
     ).reshape(num_images, _MNIST_IMAGE_SIZE, _MNIST_IMAGE_SIZE, 1)
-    return data
 
 
 def _extract_mnist_labels(labels_filepath, num_labels):
   with tf.io.gfile.GFile(labels_filepath, "rb") as f:
     f.read(8)  # header
     buf = f.read(num_labels)
-    labels = np.frombuffer(buf, dtype=np.uint8).astype(np.int64)
-    return labels
+    return np.frombuffer(buf, dtype=np.uint8).astype(np.int64)

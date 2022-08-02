@@ -72,7 +72,7 @@ def _compute_split_boundaries(split_probs, n_items):
                          splits=len(split_probs), items=n_items))
   total_probs = sum(p for name, p in split_probs)
   if abs(1 - total_probs) > 1E-8:
-    raise ValueError('Probs should sum up to 1. probs={}'.format(split_probs))
+    raise ValueError(f'Probs should sum up to 1. probs={split_probs}')
   split_boundaries = []
   sum_p = 0.0
   for name, p in split_probs:
@@ -103,7 +103,7 @@ def _get_inter_splits_by_group(items_and_groups, split_probs, split_number):
   Returns:
     Dictionary that looks like {split name -> set(ids)}.
   """
-  groups = sorted(set(group_id for item_id, group_id in items_and_groups))
+  groups = sorted({group_id for item_id, group_id in items_and_groups})
   rng = np.random.RandomState(split_number)
   rng.shuffle(groups)
 
@@ -148,16 +148,19 @@ class CremaD(tfds.core.GeneratorBasedBuilder):
     speaker_ids = []
     wav_names = []
     # These are file names which do do not exist in the github
-    bad_files = set([
-        'FileName', '1040_ITH_SAD_XX', '1006_TIE_NEU_XX', '1013_WSI_DIS_XX',
-        '1017_IWW_FEA_XX'
-    ])
+    bad_files = {
+        'FileName',
+        '1040_ITH_SAD_XX',
+        '1006_TIE_NEU_XX',
+        '1013_WSI_DIS_XX',
+        '1017_IWW_FEA_XX',
+    }
     with tf.io.gfile.GFile(csv_path['summary_table']) as f:
       for line in f:
         wav_name = line.strip().split(',')[1].replace('"', '')
         if (not wav_name) or (wav_name in bad_files):
           continue
-        wav_path = os.path.join(WAV_DATA_URL, '%s.wav' % wav_name)
+        wav_path = os.path.join(WAV_DATA_URL, f'{wav_name}.wav')
         all_wav_files.append(wav_path)
         speaker_ids.append(wav_name.split('_')[0])
         wav_names.append(wav_name)

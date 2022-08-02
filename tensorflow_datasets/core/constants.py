@@ -74,15 +74,10 @@ def list_data_dirs(
   Returns:
     The list of all data_dirs to look-up.
   """
-  # If the data dir is explicitly given, no need to search everywhere.
   if given_data_dir:
-    if isinstance(given_data_dir, list):
-      return given_data_dir
-    else:
-      return [given_data_dir]
-  else:
-    all_data_dirs = _registered_data_dir | {DATA_DIR}
-    return sorted(os.path.expanduser(d) for d in all_data_dirs)
+    return given_data_dir if isinstance(given_data_dir, list) else [given_data_dir]
+  all_data_dirs = _registered_data_dir | {DATA_DIR}
+  return sorted(os.path.expanduser(d) for d in all_data_dirs)
 
 
 def get_default_data_dir(given_data_dir: Optional[str] = None,) -> str:

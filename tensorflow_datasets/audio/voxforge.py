@@ -77,7 +77,7 @@ def _compute_split_boundaries(split_probs, n_items):
                          splits=len(split_probs), items=n_items))
   total_probs = sum(p for name, p in split_probs)
   if abs(1 - total_probs) > 1E-8:
-    raise ValueError('Probs should sum up to 1. probs={}'.format(split_probs))
+    raise ValueError(f'Probs should sum up to 1. probs={split_probs}')
   split_boundaries = []
   sum_p = 0.0
   for name, p in split_probs:
@@ -115,7 +115,7 @@ def _get_inter_splits_by_group(items_and_groups, split_probs, split_number):
   Returns:
     Dictionary that looks like {split name -> set(ids)}.
   """
-  groups = sorted(set(group_id for item_id, group_id in items_and_groups))
+  groups = sorted({group_id for item_id, group_id in items_and_groups})
   rng = np.random.RandomState(split_number)
   rng.shuffle(groups)
 
@@ -174,8 +174,8 @@ class Voxforge(tfds.core.BeamBasedBuilder):
         archive_path = os.path.join(dl_manager.manual_dir, archive_url)
         if not tf.io.gfile.exists(archive_path):
           raise AssertionError(
-              'VoxForge requires manual download. Path {} is missing'.format(
-                  archive_path))
+              f'VoxForge requires manual download. Path {archive_path} is missing'
+          )
         archive_urls.append(archive_path)
 
     archives_and_speaker_ids = []
@@ -231,7 +231,7 @@ def _generate_examples(fname, dl_manager):
     if not wav_path.endswith('.wav'):
       continue
     _, wav_name = os.path.split(wav_path)
-    key = '{}_{}_{}'.format(label, archive_name, wav_name[:-len('.wav')])
+    key = f"{label}_{archive_name}_{wav_name[:-len('.wav')]}"
     samples, sample_rate = _wav_obj_to_samples(wav_obj)
     if sample_rate != _SAMPLE_RATE:
       raise ValueError(

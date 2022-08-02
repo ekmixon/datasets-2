@@ -108,7 +108,7 @@ class ShuffleTest(testing.TestCase):
           size += len(f.read())
       self.assertEqual(size, expected_size)
     # Check records can be read as expected:
-    records = list(ex for _, ex in shuffler)
+    records = [ex for _, ex in shuffler]
     self.assertEqual(records, expected_order)
 
   def test_all_mem(self):

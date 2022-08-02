@@ -275,17 +275,7 @@ def _download_or_reuse_cache(
   Raises:
     DatasetNotFoundError: If the dataset can't be loaded.
   """
-  # Dataset can be:
-  # * Installed locally (in the cache) -> reuse
-  # * Not installed but present in the package index -> install
-  # * Not present in the package index -> raise error
-
-  # Check if the file is already downloaded/cached
-  # TODO(tfds): To force a download even if file already present, we
-  # should add a `ignore_cache=True` option in `tfds.load`. Or should always
-  # try to download the file ?
-  last_installed_version = _get_last_installed_version(name)
-  if last_installed_version:
+  if last_installed_version := _get_last_installed_version(name):
     return last_installed_version
 
   # If file isn't cached yet, we need to download it.
@@ -293,17 +283,13 @@ def _download_or_reuse_cache(
   if name not in package_index:
     # If not, we need to update the package index cache
     package_index.refresh()
-  # If the dataset is present in the package index cache, use this
-  package = package_index.get(name)
-  if not package:
+  if package := package_index.get(name):
+    return _download_and_cache(package)
+  else:
     # If still not found, raise an DatasetNotFoundError
     raise registered.DatasetNotFoundError(
         f'Could not find dataset {name}: Dataset not found among the '
         f'{len(package_index)} datasets of the community index.')
-
-  # If package was found, download it.
-  installed_package = _download_and_cache(package)
-  return installed_package
 
 
 def _get_last_installed_version(
@@ -325,10 +311,7 @@ def _get_last_installed_version(
   all_installed_packages = sorted(
       all_installed_packages, key=lambda p: p.instalation_date)
 
-  if not all_installed_packages:  # No valid package found
-    return None
-  else:
-    return all_installed_packages[-1]  # Most recently installed package
+  return all_installed_packages[-1] if all_installed_packages else None
 
 
 def _download_and_cache(package: DatasetPackage) -> _InstalledPackage:

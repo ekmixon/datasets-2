@@ -141,4 +141,4 @@ class PlantVillage(tfds.core.GeneratorBasedBuilder):
             "image/filename": fname,
             "label": label,
         }
-        yield "{}/{}".format(label, fname), record
+        yield (f"{label}/{fname}", record)

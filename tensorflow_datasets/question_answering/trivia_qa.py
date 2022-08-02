@@ -169,7 +169,7 @@ class TriviaQA(tfds.core.GeneratorBasedBuilder):
   def _split_generators(self, dl_manager):
     """Returns SplitGenerators."""
     cfg = self.builder_config
-    download_urls = dict()
+    download_urls = {}
     if not (cfg.unfiltered and cfg.exclude_context):
       download_urls["rc"] = _DOWNLOAD_URL_TMPL.format("rc")
     if cfg.unfiltered:
@@ -320,6 +320,6 @@ class TriviaQA(tfds.core.GeneratorBasedBuilder):
             article = json.loads(current_record + "}")
             current_record = ""
             example = parse_example(article)
-            yield "%s_%s" % (fname, example["question_id"]), example
+            yield (f'{fname}_{example["question_id"]}', example)
           else:
             current_record += line

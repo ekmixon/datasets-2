@@ -92,8 +92,8 @@ class TranslateFolder(dataset_builder.DatasetBuilder):
 
   def _download_and_prepare(self, **kwargs):
     raise NotImplementedError(
-        'No need to call download_and_prepare function for {}.'.format(
-            type(self).__name__))
+        f'No need to call download_and_prepare function for {type(self).__name__}.'
+    )
 
   def download_and_prepare(self, **kwargs):
     return self._download_and_prepare()
@@ -106,14 +106,12 @@ class TranslateFolder(dataset_builder.DatasetBuilder):
     """Generate dataset for given split."""
     del read_config  # Unused (automatically created in `DatasetBuilder`)
     if decoders:
-      raise NotImplementedError('`decoders` is not supported with {}'.format(
-          type(self).__name__))
+      raise NotImplementedError(
+          f'`decoders` is not supported with {type(self).__name__}')
     if split not in self.info.splits.keys():
       raise ValueError(
-          'Unrecognized split {}. Subsplit API not yet supported for {}. '
-          'Split name should be one of {}.'.format(
-              split,
-              type(self).__name__, list(self.info.splits.keys())))
+          f'Unrecognized split {split}. Subsplit API not yet supported for {type(self).__name__}. Split name should be one of {list(self.info.splits.keys())}.'
+      )
 
     # Build the tf.data.Dataset object
     lang_example_dict = self._split_examples[split]
@@ -147,8 +145,8 @@ def _get_split_language_examples(
   for split, examples in split_examples.items():
     num_examples = {lang: len(ex) for lang, ex in examples.items()}
     if len(set(num_examples.values())) != 1:
-      raise ValueError('Num examples for split {} do not match: {}'.format(
-          split, num_examples))
+      raise ValueError(
+          f'Num examples for split {split} do not match: {num_examples}')
 
   return split_examples, sorted(languages)
 

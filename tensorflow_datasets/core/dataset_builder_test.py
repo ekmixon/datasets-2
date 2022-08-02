@@ -148,14 +148,16 @@ class DatasetBuilderTest(testing.TestCase):
         with self.gcs_access():
           _, info = load.load(name="mnist", data_dir=tmp_dir, with_info=True)
       self.assertSetEqual(
-          set([
+          {
               "dataset_info.json",
               "image.image.json",
               "mnist-test.tfrecord-00000-of-00001",
               "mnist-train.tfrecord-00000-of-00001",
-          ]), set(tf.io.gfile.listdir(os.path.join(tmp_dir, "mnist/3.0.1"))))
+          },
+          set(tf.io.gfile.listdir(os.path.join(tmp_dir, "mnist/3.0.1"))),
+      )
 
-      self.assertEqual(set(info.splits.keys()), set(["train", "test"]))
+      self.assertEqual(set(info.splits.keys()), {"train", "test"})
 
   @testing.run_in_graph_and_eager_modes()
   def test_multi_split(self):
@@ -197,9 +199,8 @@ class DatasetBuilderTest(testing.TestCase):
 
   def test_config_construction(self):
     with testing.tmp_dir(self.get_temp_dir()) as tmp_dir:
-      self.assertSetEqual(
-          set(["plus1", "plus2"]),
-          set(DummyDatasetWithConfigs.builder_configs.keys()))
+      self.assertSetEqual({"plus1", "plus2"},
+                          set(DummyDatasetWithConfigs.builder_configs.keys()))
       plus1_config = DummyDatasetWithConfigs.builder_configs["plus1"]
       builder = DummyDatasetWithConfigs(config="plus1", data_dir=tmp_dir)
       self.assertIs(plus1_config, builder.builder_config)
@@ -625,8 +626,7 @@ class DatasetBuilderReadTest(testing.TestCase):
   def test_all_splits(self):
     splits = dataset_utils.as_numpy(self.builder.as_dataset(batch_size=-1))
     self.assertSetEqual(
-        set(splits.keys()), set([splits_lib.Split.TRAIN,
-                                 splits_lib.Split.TEST]))
+        set(splits.keys()), {splits_lib.Split.TRAIN, splits_lib.Split.TEST})
 
     # Test that enum and string both access same object
     self.assertIs(splits["train"], splits[splits_lib.Split.TRAIN])

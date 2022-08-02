@@ -169,8 +169,8 @@ class CuratedBreastImagingDDSM(tfds.core.GeneratorBasedBuilder):
         'patches': self._get_features_patches
     }
     if self.builder_config.name not in features_fn_map:
-      raise ValueError('Builder config named {} not supported!'.format(
-          self.builder_config.name))
+      raise ValueError(
+          f'Builder config named {self.builder_config.name} not supported!')
 
     return tfds.core.DatasetInfo(
         builder=self,
@@ -260,8 +260,8 @@ class CuratedBreastImagingDDSM(tfds.core.GeneratorBasedBuilder):
     elif self.builder_config.name == 'patches':
       return self._split_generators_patches(dl_manager)
     else:
-      raise ValueError('Builder config named {} not supported!'.format(
-          self.builder_config.name))
+      raise ValueError(
+          f'Builder config named {self.builder_config.name} not supported!')
 
   def _split_generators_original(self, dl_manager):
     if self.builder_config.name == 'original-calc':
@@ -271,8 +271,8 @@ class CuratedBreastImagingDDSM(tfds.core.GeneratorBasedBuilder):
       test_url = _MASS_TEST_CSV_URL
       train_url = _MASS_TRAIN_CSV_URL
     else:
-      raise ValueError('Builder config named {} not supported!'.format(
-          self.builder_config.name))
+      raise ValueError(
+          f'Builder config named {self.builder_config.name} not supported!')
 
     resources = {'test': test_url, 'train': train_url}
     resource_paths = dl_manager.download_and_extract(resources)
@@ -421,9 +421,9 @@ class CuratedBreastImagingDDSM(tfds.core.GeneratorBasedBuilder):
           else:
             benign_or_malignant = 'BENIGN'
           if abnormality['type'] == 'calc':
-            label = benign_or_malignant + '_CALCIFICATION'
+            label = f'{benign_or_malignant}_CALCIFICATION'
           elif abnormality['type'] == 'mass':
-            label = benign_or_malignant + '_MASS'
+            label = f'{benign_or_malignant}_MASS'
           else:
             raise ValueError('Unknown abnormality type: %r' %
                              abnormality['type'])
@@ -740,8 +740,11 @@ def _sample_positive_patches(image,
           'The sampling region for patches of size %r with '
           'min_overlap_threshold=%f contains less possible patches than '
           'max_number_of_trials_per_threshold=%d, in abnormality %s',
-          patch_size, min_overlap_threshold, max_number_of_trials_per_threshold,
-          abnormality_filepath)
+          patch_size,
+          min_overlap_threshold,
+          effective_range_size,
+          abnormality_filepath,
+      )
       effective_range_size = (max_y - min_y + 1) * (max_x - min_x + 1)
 
     for _ in range(effective_range_size):

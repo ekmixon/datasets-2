@@ -14,8 +14,11 @@
 # limitations under the License.
 
 """Tests for open_images dataset module."""
+
 from tensorflow_datasets import testing
 from tensorflow_datasets.object_detection import open_images
+
+
 
 
 class OpenImagesV42012Test(testing.DatasetBuilderTestCase):
@@ -26,9 +29,8 @@ class OpenImagesV42012Test(testing.DatasetBuilderTestCase):
       'validation': 12,
   }
   DL_EXTRACT_RESULT = {
-      'train_images': [
-          's3-tar_train_sha1_%s.tar' % i for i in '0123456789abcdef'
-      ],
+      'train_images':
+      [f's3-tar_train_sha1_{i}.tar' for i in '0123456789abcdef'],
       'test_images': 's3-tar_test_sha2.tar',
       'validation_images': 's3-tar_validation_sha3.tar',
       'train_human_labels': 'train-human-labels.csv',
@@ -41,6 +43,7 @@ class OpenImagesV42012Test(testing.DatasetBuilderTestCase):
       'test-annotations-bbox': 'test-annotations-bbox.csv',
       'validation-annotations-bbox': 'validation-annotations-bbox.csv',
   }
+
 
 
 if __name__ == '__main__':

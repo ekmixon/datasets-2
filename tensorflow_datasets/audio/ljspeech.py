@@ -82,8 +82,7 @@ class Ljspeech(tfds.core.GeneratorBasedBuilder):
       for line in f:
         line = line.strip()
         key, transcript, transcript_normalized = line.split("|")
-        wav_path = os.path.join(directory, "LJSpeech-1.1", "wavs",
-                                "%s.wav" % key)
+        wav_path = os.path.join(directory, "LJSpeech-1.1", "wavs", f"{key}.wav")
         example = {
             "id": key,
             "speech": wav_path,

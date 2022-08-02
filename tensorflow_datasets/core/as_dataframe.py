@@ -102,15 +102,9 @@ def _get_feature(
   sequence_rank = 0
 
   # Collapse the nested sequences
-  while isinstance(feature, features.Sequence):
-    # Subclasses like `Video` shouldn't be recursed into.
-    # But sequence of dict like `TranslationVariableLanguages` should.
-    # Currently, there is no good way for a composed sub-feature to only
-    # display a single column instead of one per sub-feature.
-    # So `MyFeature({'x': tf.int32, 'y': tf.bool})` will have 2 columns `x`
-    # and `y`.
-    if type(feature) != features.Sequence and not path:  # pylint: disable=unidiomatic-typecheck
-      break
+  while isinstance(feature,
+                   features.Sequence) and not (type(feature) != features.Sequence
+                                               and not path):
     sequence_rank += 1
     feature = feature.feature  # Extract inner feature  # pytype: disable=attribute-error
 

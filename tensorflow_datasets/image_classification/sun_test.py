@@ -15,14 +15,19 @@
 
 """Tests for SUN (Scene UNderstanding) datasets."""
 
+
 import os
 
 from tensorflow_datasets import testing
 from tensorflow_datasets.image_classification import sun
 
 _EXAMPLE_DIR = os.path.join(
-    os.path.normpath(os.path.dirname(__file__) + '/../'), 'testing',
-    'test_data', 'fake_examples', 'sun397')
+    os.path.normpath(f'{os.path.dirname(__file__)}/../'),
+    'testing',
+    'test_data',
+    'fake_examples',
+    'sun397',
+)
 
 # Could use functools.partialmethod in Python3
 original_init = sun.Sun397.__init__

@@ -111,7 +111,7 @@ class BigearthnetConfig(tfds.core.BuilderConfig):
       **kwargs: keyword arguments forwarded to super.
     """
     if selection not in _DATA_OPTIONS:
-      raise ValueError('selection must be one of %s' % _DATA_OPTIONS)
+      raise ValueError(f'selection must be one of {_DATA_OPTIONS}')
 
     super(BigearthnetConfig, self).__init__(
         version=tfds.core.Version('1.0.0'),
@@ -235,12 +235,11 @@ def _read_archive(archive_path, selection):
       example['metadata'] = fobj.read()
     elif fname.endswith('.tif'):
       band = fname[-7:-4]
-      if selection != 'rgb' or (selection == 'rgb' and
-                                band in {'B02', 'B03', 'B04'}):
+      if selection != 'rgb' or band in {'B02', 'B03', 'B04'}:
         example[band] = fobj.read()
         example.setdefault('bands', []).append(band)
     else:
-      raise AssertionError('Unexpected file: %s' % fpath)
+      raise AssertionError(f'Unexpected file: {fpath}')
     if read_band_files == 13:
       example['filename'] = patch_name
       yield example

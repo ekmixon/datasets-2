@@ -72,8 +72,8 @@ class Voxceleb(tfds.core.GeneratorBasedBuilder):
     zip_path = os.path.join(dl_manager.manual_dir, 'vox_dev_wav.zip')
     if not tf.io.gfile.exists(zip_path):
       raise AssertionError(
-          'VoxCeleb requires manual download of the data. Please download '
-          'the audio data and place it into: {}'.format(zip_path))
+          f'VoxCeleb requires manual download of the data. Please download the audio data and place it into: {zip_path}'
+      )
     # Need to extract instead of reading directly from archive since reading
     # audio files from zip archive is not supported.
     extract_path = dl_manager.extract(zip_path)

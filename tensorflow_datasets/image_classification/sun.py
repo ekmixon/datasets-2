@@ -226,11 +226,12 @@ class Sun397(tfds.core.GeneratorBasedBuilder):
   def _split_generators(self, dl_manager):
     paths = dl_manager.download_and_extract({
         "images":
-            tfds.download.Resource(
-                url=_SUN397_URL + "SUN397.tar.gz",
-                extract_method=tfds.download.ExtractMethod.NO_EXTRACT),
+        tfds.download.Resource(
+            url=f"{_SUN397_URL}SUN397.tar.gz",
+            extract_method=tfds.download.ExtractMethod.NO_EXTRACT,
+        ),
         "partitions":
-            _SUN397_URL + "download/Partitions.zip",
+        f"{_SUN397_URL}download/Partitions.zip",
     })
     if not isinstance(paths, dict):
       # While testing download_and_extract() returns the dir containing the
@@ -302,10 +303,10 @@ class Sun397(tfds.core.GeneratorBasedBuilder):
             yield filename, record
 
   def _get_tfds_subsets_images(self):
-    splits_sets = {}
-    for split, filepath in self._tfds_split_files.items():
-      splits_sets[split] = self._load_image_set_from_file(filepath)
-    return splits_sets
+    return {
+        split: self._load_image_set_from_file(filepath)
+        for split, filepath in self._tfds_split_files.items()
+    }
 
   def _get_partition_subsets_images(self, partitions_dir):
     # Get the ID of all images in the dataset.
@@ -327,4 +328,4 @@ class Sun397(tfds.core.GeneratorBasedBuilder):
 
   def _load_image_set_from_file(self, filepath):
     with tf.io.gfile.GFile(os.fspath(filepath), mode="r") as f:
-      return set([line.strip() for line in f])
+      return {line.strip() for line in f}

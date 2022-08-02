@@ -80,8 +80,7 @@ class _Extractor(object):
 
   def _sync_extract(self, from_path, method, to_path):
     """Returns `to_path` once resource has been extracted there."""
-    to_path_tmp = '%s%s_%s' % (to_path, constants.INCOMPLETE_SUFFIX,
-                               uuid.uuid4().hex)
+    to_path_tmp = f'{to_path}{constants.INCOMPLETE_SUFFIX}_{uuid.uuid4().hex}'
     path = None
     dst_path = None  # To avoid undefined variable if exception is raised
     try:
@@ -90,8 +89,7 @@ class _Extractor(object):
         dst_path = path and os.path.join(to_path_tmp, path) or to_path_tmp
         _copy(handle, dst_path)
     except BaseException as err:
-      msg = 'Error while extracting {} to {} (file: {}) : {}'.format(
-          from_path, to_path, path, err)
+      msg = f'Error while extracting {from_path} to {to_path} (file: {path}) : {err}'
       # Check if running on windows
       if os.name == 'nt' and dst_path and len(dst_path) > 250:
         msg += (
@@ -107,7 +105,7 @@ class _Extractor(object):
       # When 2 builder scripts (for each config) extract the same file, one can
       # `rename` while the other is still running `rmtree`, leading to corrupted
       # archive dir.
-      path_to_delete = to_path_tmp + '.todelete'
+      path_to_delete = f'{to_path_tmp}.todelete'
       tf.io.gfile.rename(to_path, path_to_delete)
       tf.io.gfile.rmtree(path_to_delete)
     tf.io.gfile.rename(to_path_tmp, to_path)
@@ -120,10 +118,10 @@ def _copy(src_file, dest_path):
   tf.io.gfile.makedirs(os.path.dirname(dest_path))
   with tf.io.gfile.GFile(dest_path, 'wb') as dest_file:
     while True:
-      data = src_file.read(io.DEFAULT_BUFFER_SIZE)
-      if not data:
+      if data := src_file.read(io.DEFAULT_BUFFER_SIZE):
+        dest_file.write(data)
+      else:
         break
-      dest_file.write(data)
 
 
 def _normpath(path):
@@ -168,7 +166,7 @@ def iter_tar(arch_f, stream=False):
       try:
         extract_file = tar.extractfile(member)
       except KeyError:
-        if not (member.islnk() or member.issym()):
+        if not member.islnk() and not member.issym():
           raise  # Forward exception non-link files which couldn't be extracted
         # The link could not be extracted, which likely indicates a corrupted
         # archive.
@@ -180,10 +178,8 @@ def iter_tar(arch_f, stream=False):
         continue
 
       if extract_file:  # File with data (not directory):
-        path = _normpath(member.path)  # pytype: disable=attribute-error
-        if not path:
-          continue
-        yield (path, extract_file)
+        if path := _normpath(member.path):
+          yield (path, extract_file)
 
 
 def iter_tar_stream(arch_f):
@@ -210,10 +206,8 @@ def iter_zip(arch_f):
       if member.is_dir():  # Filter directories  # pytype: disable=attribute-error
         continue
       extract_file = z.open(member)
-      path = _normpath(member.filename)
-      if not path:
-        continue
-      yield (path, extract_file)
+      if path := _normpath(member.filename):
+        yield (path, extract_file)
 
 
 _EXTRACT_METHODS = {

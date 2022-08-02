@@ -219,8 +219,8 @@ class DownloadManagerTest(testing.TestCase):
     # A isn't downloaded as already cached
     # C is re-downloaded as incomplete
     self.assertCountEqual(self.downloaded_urls, {b.url, c.url})
-    self.assertEqual(  # Downloaded size include cached downloads
-        manager.downloaded_size, sum([art.url_info.size for art in (a, b, c)]))
+    self.assertEqual(manager.downloaded_size,
+                     sum(art.url_info.size for art in (a, b, c)))
 
   def test_manually_downloaded(self):
     """One file is manually downloaded, one not."""
@@ -295,8 +295,8 @@ class DownloadManagerTest(testing.TestCase):
     })
     res = manager.download_and_extract({'a': a.url, 'b': b.url})
     self.assertEqual(res, {
-        'a': _as_path('/extract_dir/ZIP.%s' % a.file_name),
-        'b': b.file_path,
+        'a': _as_path(f'/extract_dir/ZIP.{a.file_name}'),
+        'b': b.file_path
     })
 
   def test_download_and_extract_no_manual_dir(self):
@@ -316,8 +316,8 @@ class DownloadManagerTest(testing.TestCase):
     )
     res = manager.download_and_extract({'a': a.url, 'b': b.url})
     self.assertEqual(res, {
-        'a': _as_path('/extract_dir/ZIP.%s' % a.file_name),
-        'b': b.file_path,
+        'a': _as_path(f'/extract_dir/ZIP.{a.file_name}'),
+        'b': b.file_path
     })
 
   def test_download_and_extract_archive_ext_in_fname(self):
@@ -332,9 +332,7 @@ class DownloadManagerTest(testing.TestCase):
         a.url: a.url_info,
     })
     res = manager.download_and_extract({'a': a.url})
-    self.assertEqual(res, _as_path({
-        'a': '/extract_dir/ZIP.%s' % a.file_name,
-    }))
+    self.assertEqual(res, _as_path({'a': f'/extract_dir/ZIP.{a.file_name}'}))
 
 
   def test_download_and_extract_already_downloaded(self):

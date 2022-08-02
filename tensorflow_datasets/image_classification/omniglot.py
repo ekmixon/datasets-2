@@ -15,6 +15,7 @@
 
 """Omniglot dataset."""
 
+
 import os
 import tensorflow as tf
 
@@ -39,12 +40,12 @@ handwritten characters from 50 different alphabets.
 """
 
 _BASE_URL = "https://github.com/brendenlake/omniglot/"
-_DL_URL = _BASE_URL + "raw/master/python/"
+_DL_URL = f"{_BASE_URL}raw/master/python/"
 _DL_URLS = {
-    "train": _DL_URL + "images_background.zip",
-    "eval": _DL_URL + "images_evaluation.zip",
-    "small1": _DL_URL + "images_background_small1.zip",
-    "small2": _DL_URL + "images_background_small2.zip",
+    "train": f"{_DL_URL}images_background.zip",
+    "eval": f"{_DL_URL}images_evaluation.zip",
+    "small1": f"{_DL_URL}images_background_small1.zip",
+    "small2": f"{_DL_URL}images_background_small2.zip",
 }
 
 _NUM_CLASSES = 1623

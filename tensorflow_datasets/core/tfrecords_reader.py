@@ -284,13 +284,8 @@ def _read_files(
       read_config.input_context.num_input_pipelines > 1):
     if len(file_instructions) < read_config.input_context.num_input_pipelines:
       raise ValueError(
-          'Cannot shard the pipeline with given `input_context`.'
-          '`num_shards={}` but `num_input_pipelines={}`. '
-          'This means that some workers won\'t read any data. '
-          'To shard the data, you may want to use the subsplit API '
-          'instead: https://www.tensorflow.org/datasets/splits'.format(
-              len(file_instructions),
-              read_config.input_context.num_input_pipelines))
+          f"Cannot shard the pipeline with given `input_context`.`num_shards={len(file_instructions)}` but `num_input_pipelines={read_config.input_context.num_input_pipelines}`. This means that some workers won\'t read any data. To shard the data, you may want to use the subsplit API instead: https://www.tensorflow.org/datasets/splits"
+      )
     instruction_ds = instruction_ds.shard(
         num_shards=read_config.input_context.num_input_pipelines,
         index=read_config.input_context.input_pipeline_id,
@@ -333,12 +328,11 @@ def _read_files(
 
 
 def _get_default_interleave_cycle_length(disable_shuffling: bool) -> int:
-  if disable_shuffling:
-    logging.info(
-        '`interleave_cycle_length` set to 1 to read examples in order.')
-    return 1
-  else:
+  if not disable_shuffling:
     return 16
+  logging.info(
+      '`interleave_cycle_length` set to 1 to read examples in order.')
+  return 1
 
 
 def _verify_read_config_for_ordered_dataset(
@@ -614,8 +608,7 @@ def _rel_to_abs_instr(
   else:
     raise ValueError(f'Invalid split unit: {rel_instr.unit}')
   if abs(from_) > num_examples or abs(to) > num_examples:
-    msg = 'Requested slice [%s:%s] incompatible with %s examples.' % (
-        from_ or '', to or '', num_examples)
+    msg = f"Requested slice [{from_ or ''}:{to or ''}] incompatible with {num_examples} examples."
     raise ValueError(msg)
   if from_ < 0:
     from_ = num_examples + from_
@@ -777,19 +770,16 @@ class ReadInstruction(AbstractSplit):
     if self.rounding not in allowed_rounding:
       raise ValueError(f'Rounding should be one of {allowed_rounding}. '
                        f'Got: {self.rounding!r}')
-    if self.unit == '%':
-      if abs(self.from_ or 0) > 100 or abs(self.to or 0) > 100:
-        raise ValueError('When unit=%, percent slice boundaries should be '
-                         f'in [-100, 100]. Got: {self}')
+    if self.unit == '%' and (abs(self.from_ or 0) > 100
+                             or abs(self.to or 0) > 100):
+      raise ValueError('When unit=%, percent slice boundaries should be '
+                       f'in [-100, 100]. Got: {self}')
 
   def __repr__(self) -> str:
     unit = '' if self.unit == 'abs' else self.unit
     from_ = '' if self.from_ is None else f'{self.from_}{unit}'
     to = '' if self.to is None else f'{self.to}{unit}'
-    if self.from_ is None and self.to is None:
-      slice_str = ''  # Full split selected
-    else:
-      slice_str = f'[{from_}:{to}]'
+    slice_str = '' if self.from_ is None and self.to is None else f'[{from_}:{to}]'
     rounding = f', rounding={self.rounding!r}' if self.unit == '%' else ''
     return f'ReadInstruction(\'{self.split_name}{slice_str}\'{rounding})'
 

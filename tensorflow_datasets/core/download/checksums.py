@@ -163,9 +163,9 @@ def get_all_url_infos() -> Dict[str, UrlInfo]:
     for url, url_info in dataset_url_infos.items():
       if url_infos.get(url, url_info) != url_info:
         raise AssertionError(
-            'URL {} is registered with 2+ distinct size/checksum tuples. '
-            '{} vs {}'.format(url, url_info, url_infos[url]))
-    url_infos.update(dataset_url_infos)
+            f'URL {url} is registered with 2+ distinct size/checksum tuples. {url_info} vs {url_infos[url]}'
+        )
+    url_infos |= dataset_url_infos
   return url_infos
 
 

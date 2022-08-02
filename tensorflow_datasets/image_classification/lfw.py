@@ -70,7 +70,7 @@ class LFW(tfds.core.GeneratorBasedBuilder):
   def _generate_examples(self, data_path):
     image_list = self.path_maker(data_path)
     for label, path in image_list:
-      key = "%s/%s" % (label, os.path.basename(path))
+      key = f"{label}/{os.path.basename(path)}"
       yield key, {
           "label": label,
           "image": path,

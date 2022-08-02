@@ -10,6 +10,7 @@ Usage outside of TensorFlow is also supported.
 See the README on GitHub for further documentation.
 """
 
+
 import datetime
 import itertools
 import os
@@ -170,14 +171,11 @@ EXTRAS_REQUIRE = {
     'matplotlib': ['matplotlib'],
     'tensorflow': ['tensorflow>=2.1'],
     'tensorflow-data-validation': ['tensorflow-data-validation'],
-
     # Tests dependencies are installed in ./oss_scripts/oss_pip_install.sh
     # and run in ./oss_scripts/oss_tests.sh
     'tests-all': TESTS_REQUIRE + all_dataset_extras,
     'dev': TESTS_REQUIRE + DEV_REQUIRE,
-}
-EXTRAS_REQUIRE.update(DATASET_EXTRAS)
-
+} | DATASET_EXTRAS
 setup(
     name=project_name,
     version=__version__,

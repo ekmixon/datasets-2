@@ -18,6 +18,7 @@
 https://storage.googleapis.com/openimages/web/challenge2019.html
 """
 
+
 import abc
 
 import tensorflow as tf
@@ -51,8 +52,8 @@ _TRAIN_IMAGES_URLS = [
     for n in range(9)
 ]
 _VALIDATION_IMAGES_URL = (
-    _FIGURE_EIGHT_BASE_URL + "zip_files_copy/validation.zip")
-_TEST_IMAGES_URL = _FIGURE_EIGHT_BASE_URL + "test_challenge.zip"
+    f"{_FIGURE_EIGHT_BASE_URL}zip_files_copy/validation.zip")
+_TEST_IMAGES_URL = f"{_FIGURE_EIGHT_BASE_URL}test_challenge.zip"
 _NUM_CLASSES = 500
 
 
@@ -103,7 +104,7 @@ class _OpenImagesChallenge2019(tfds.core.BeamBasedBuilder):  # pytype: disable=i
         "test_images": [_TEST_IMAGES_URL],
         "validation_images": [_VALIDATION_IMAGES_URL]
     }
-    urls.update(self.annotation_urls)
+    urls |= self.annotation_urls
     paths = dl_manager.download(urls)
     return [
         tfds.core.SplitGenerator(
@@ -128,17 +129,13 @@ class OpenImagesChallenge2019Detection(_OpenImagesChallenge2019):
   def annotation_urls(self):
     return {
         "train_image_label":
-            _GOOGLE_URL_PREFIX + "train-detection-human-imagelabels.csv",
-        "train_boxes":
-            _GOOGLE_URL_PREFIX + "train-detection-bbox.csv",
+        f"{_GOOGLE_URL_PREFIX}train-detection-human-imagelabels.csv",
+        "train_boxes": f"{_GOOGLE_URL_PREFIX}train-detection-bbox.csv",
         "validation_image_label":
-            _GOOGLE_URL_PREFIX + "validation-detection-human-imagelabels.csv",
-        "validation_boxes":
-            _GOOGLE_URL_PREFIX + "validation-detection-bbox.csv",
-        "classes":
-            _GOOGLE_URL_PREFIX + "classes-description-500.csv",
-        "hierarchy":
-            _GOOGLE_URL_PREFIX + "label500-hierarchy.json",
+        f"{_GOOGLE_URL_PREFIX}validation-detection-human-imagelabels.csv",
+        "validation_boxes": f"{_GOOGLE_URL_PREFIX}validation-detection-bbox.csv",
+        "classes": f"{_GOOGLE_URL_PREFIX}classes-description-500.csv",
+        "hierarchy": f"{_GOOGLE_URL_PREFIX}label500-hierarchy.json",
     }
 
   def _info(self):
@@ -190,15 +187,16 @@ class OpenImagesChallenge2019Detection(_OpenImagesChallenge2019):
       )
     else:
       generate_examples_kwargs = dict(
-          image_labels_filepath=paths["{}_image_label".format(split)],
-          box_labels_filepath=paths["{}_boxes".format(split)],
+          image_labels_filepath=paths[f"{split}_image_label"],
+          box_labels_filepath=paths[f"{split}_boxes"],
           hierarchy_filepath=paths["hierarchy"],
           classes_filepath=paths["classes"],
       )
     # Fill class names after the data has been downloaded.
     oi_beam.fill_class_names_in_tfds_info(paths["classes"], self.info.features)
-    return (pipeline | beam.Create(paths["{}_images".format(split)])
-            | "ReadImages" >> beam.ParDo(oi_beam.ReadZipFn())
+    return ((pipeline
+             | beam.Create(paths[f"{split}_images"])
+             | "ReadImages" >> beam.ParDo(oi_beam.ReadZipFn()))
             | "ProcessImages" >> beam.ParDo(
                 oi_beam.ProcessImageFn(
                     target_pixels=self.builder_config.target_pixels,

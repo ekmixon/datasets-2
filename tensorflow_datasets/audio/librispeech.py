@@ -15,6 +15,7 @@
 
 """Librispeech dataset."""
 
+
 import os
 
 import tensorflow as tf
@@ -41,13 +42,13 @@ audiobooks from the LibriVox project, and has been carefully segmented and align
 _URL = "http://www.openslr.org/12"
 _DL_URL = "http://www.openslr.org/resources/12/"
 _DL_URLS = {
-    "dev_clean": _DL_URL + "dev-clean.tar.gz",
-    "dev_other": _DL_URL + "dev-other.tar.gz",
-    "test_clean": _DL_URL + "test-clean.tar.gz",
-    "test_other": _DL_URL + "test-other.tar.gz",
-    "train_clean100": _DL_URL + "train-clean-100.tar.gz",
-    "train_clean360": _DL_URL + "train-clean-360.tar.gz",
-    "train_other500": _DL_URL + "train-other-500.tar.gz",
+    "dev_clean": f"{_DL_URL}dev-clean.tar.gz",
+    "dev_other": f"{_DL_URL}dev-other.tar.gz",
+    "test_clean": f"{_DL_URL}test-clean.tar.gz",
+    "test_other": f"{_DL_URL}test-other.tar.gz",
+    "train_clean100": f"{_DL_URL}train-clean-100.tar.gz",
+    "train_clean360": f"{_DL_URL}train-clean-360.tar.gz",
+    "train_other500": f"{_DL_URL}train-other-500.tar.gz",
 }
 
 
@@ -100,11 +101,10 @@ class Librispeech(tfds.core.BeamBasedBuilder):
   def _split_generators(self, dl_manager):
     extracted_dirs = dl_manager.download_and_extract(_DL_URLS)
     self._populate_metadata(extracted_dirs)
-    splits = [
+    return [
         tfds.core.SplitGenerator(name=k, gen_kwargs={"directory": v})
         for k, v in extracted_dirs.items()
     ]
-    return splits
 
   def _build_pcollection(self, pipeline, directory):
     """Generates examples as dicts."""
@@ -124,7 +124,7 @@ def _generate_librispeech_examples(directory):
       for line in f:
         line = line.strip()
         key, transcript = line.split(" ", 1)
-        audio_file = "%s.flac" % key
+        audio_file = f"{key}.flac"
         speaker_id, chapter_id = [int(el) for el in key.split("-")[:2]]
         example = {
             "id": key,

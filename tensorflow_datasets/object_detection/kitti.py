@@ -100,9 +100,9 @@ class Kitti(tfds.core.GeneratorBasedBuilder):
 
   def _split_generators(self, dl_manager):
     filenames = {
-        "images": _DATA_URL + "/" + _IMAGES_FNAME,
-        "annotations": _DATA_URL + "/" + _LABELS_FNAME,
-        "devkit": _DATA_URL + "/" + _DEVKIT_FNAME,
+        "images": f"{_DATA_URL}/{_IMAGES_FNAME}",
+        "annotations": f"{_DATA_URL}/{_LABELS_FNAME}",
+        "devkit": f"{_DATA_URL}/{_DEVKIT_FNAME}",
     }
     files = dl_manager.download(filenames)
     train_images, validation_images, test_images = _build_splits(
@@ -150,7 +150,7 @@ class Kitti(tfds.core.GeneratorBasedBuilder):
     """
     cv2 = tfds.core.lazy_imports.cv2
 
-    all_annotations = dict()
+    all_annotations = {}
     for fpath, fobj in annotations:
       prefix, ext = os.path.splitext(fpath)
       if ext != ".txt":

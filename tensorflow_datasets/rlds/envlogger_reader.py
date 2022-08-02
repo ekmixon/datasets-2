@@ -85,10 +85,7 @@ def get_episode_dict(
   Returns:
      Episode (or None if episode_metadata_fn returns None).
   """
-  if episode_metadata:
-    episode_dict = episode_metadata
-  else:
-    episode_dict = _get_episode_metadata(episode)
+  episode_dict = episode_metadata or _get_episode_metadata(episode)
   episode_dict = episode_metadata_fn(episode_dict)
   if episode_dict is None:
     return None
@@ -118,9 +115,8 @@ def generate_episodes(
   """
   for index, episode_metadata in enumerate(tag_reader.episode_metadata()):
     episode = tag_reader.episodes[index]
-    episode_dict = get_episode_dict(episode, episode_metadata,
-                                    episode_metadata_fn, step_fn)
-    if episode_dict:
+    if episode_dict := get_episode_dict(episode, episode_metadata,
+                                        episode_metadata_fn, step_fn):
       yield episode_dict
 
 

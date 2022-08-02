@@ -79,9 +79,7 @@ class Dtd(tfds.core.GeneratorBasedBuilder):
     ]
 
   def _generate_examples(self, data_path, split_name):
-    with tf.io.gfile.GFile(
-        os.path.join(data_path, "dtd", "labels", split_name + ".txt"),
-        "r") as split_file:
+    with tf.io.gfile.GFile(os.path.join(data_path, "dtd", "labels", f"{split_name}.txt"), "r") as split_file:
       for line in split_file:
         fname = line.strip()
         label = os.path.split(fname)[0]

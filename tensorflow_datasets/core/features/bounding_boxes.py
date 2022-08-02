@@ -73,14 +73,11 @@ class BBoxFeature(tensor_feature.Tensor):
     # Validate the coordinates
     for coordinate in bbox:
       if not isinstance(coordinate, float):
-        raise ValueError(
-            'BBox coordinates should be float. Got {}.'.format(bbox))
+        raise ValueError(f'BBox coordinates should be float. Got {bbox}.')
       if not 0.0 <= coordinate <= 1.0:
-        raise ValueError(
-            'BBox coordinates should be between 0 and 1. Got {}.'.format(bbox))
+        raise ValueError(f'BBox coordinates should be between 0 and 1. Got {bbox}.')
       if bbox.xmax < bbox.xmin or bbox.ymax < bbox.ymin:
-        raise ValueError(
-            'BBox coordinates should have min <= max. Got {}.'.format(bbox))
+        raise ValueError(f'BBox coordinates should have min <= max. Got {bbox}.')
 
     return super(BBoxFeature, self).encode_example(
         [bbox.ymin, bbox.xmin, bbox.ymax, bbox.xmax])
@@ -100,7 +97,7 @@ class BBoxFeature(tensor_feature.Tensor):
     return cls()
 
   def to_json_content(self) -> Json:
-    return dict()
+    return {}
 
 
 def _repr_html(ex: np.ndarray) -> str:

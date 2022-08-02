@@ -14,6 +14,7 @@
 # limitations under the License.
 
 """The ImageNet-v2 image classification dataset."""
+
 import os
 import tensorflow as tf
 import tensorflow_datasets.public_api as tfds
@@ -48,9 +49,9 @@ represented as a dictionary with the following keys:
 
 _ROOT_URL = 'https://s3-us-west-2.amazonaws.com/imagenetv2public'
 _IMAGENET_V2_URLS = {
-    'matched-frequency': _ROOT_URL + '/imagenetv2-matched-frequency.tar.gz',
-    'threshold-0.7': _ROOT_URL + '/imagenetv2-threshold0.7.tar.gz',
-    'topimages': _ROOT_URL + '/imagenetv2-top-images.tar.gz',
+    'matched-frequency': f'{_ROOT_URL}/imagenetv2-matched-frequency.tar.gz',
+    'threshold-0.7': f'{_ROOT_URL}/imagenetv2-threshold0.7.tar.gz',
+    'topimages': f'{_ROOT_URL}/imagenetv2-top-images.tar.gz',
 }
 _TAR_TOPDIR = {
     'matched-frequency': 'imagenetv2-matched-frequency-format-val',
@@ -76,8 +77,9 @@ class ImagenetV2Config(tfds.core.BuilderConfig):
     """
     super(ImagenetV2Config, self).__init__(**kwargs)
     if variant not in _IMAGENET_V2_URLS:
-      raise ValueError('Unknown split number {}, must be one of {}'.format(
-          variant, list(_IMAGENET_V2_URLS)))
+      raise ValueError(
+          f'Unknown split number {variant}, must be one of {list(_IMAGENET_V2_URLS)}'
+      )
     self.variant = variant
 
 

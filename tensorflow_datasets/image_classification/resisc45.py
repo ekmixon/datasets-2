@@ -87,9 +87,9 @@ class Resisc45(tfds.core.GeneratorBasedBuilder):
     """Returns SplitGenerators."""
     path = os.path.join(dl_manager.manual_dir, 'NWPU-RESISC45')
     if not tf.io.gfile.exists(path):
-      raise AssertionError('You must download the dataset manually from {}, '
-                           'extract it, and place it in {}.'.format(
-                               _URL, dl_manager.manual_dir))
+      raise AssertionError(
+          f'You must download the dataset manually from {_URL}, extract it, and place it in {dl_manager.manual_dir}.'
+      )
     return [
         tfds.core.SplitGenerator(
             name=tfds.Split.TRAIN,

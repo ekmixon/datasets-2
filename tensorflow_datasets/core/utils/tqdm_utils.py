@@ -73,12 +73,7 @@ class EmptyTqdm(object):
     return
 
 
-_active = True
-# Disable progression bar when TFDS is executed inside TF kokoro documentation
-# infrastructure. Otherwise it creates visual artifacts in the notebook output
-# of the documentation pages.
-if 'TF_DOCS_INFRA_KOKORO' in os.environ:
-  _active = False
+_active = 'TF_DOCS_INFRA_KOKORO' not in os.environ
 
 
 def tqdm(*args, **kwargs):
@@ -89,10 +84,7 @@ def tqdm(*args, **kwargs):
 
 
 def async_tqdm(*args, **kwargs):
-  if _active:
-    return _async_tqdm(*args, **kwargs)
-  else:
-    return EmptyTqdm(*args, **kwargs)
+  return _async_tqdm(*args, **kwargs) if _active else EmptyTqdm(*args, **kwargs)
 
 
 def display_progress_bar(enable: bool) -> None:

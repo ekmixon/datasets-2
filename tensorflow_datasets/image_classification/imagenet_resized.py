@@ -61,15 +61,13 @@ class ImagenetResizedConfig(tfds.core.BuilderConfig):
 
 def _make_builder_configs():
   """Returns BuilderConfigs."""
-  configs = []
-  for size in [8, 16, 32, 64]:
-    configs.append(
-        ImagenetResizedConfig(
-            name='%dx%d' % (size, size),
-            size=size,
-            description=f'Images resized to {size}x{size}',
-        ),)
-  return configs
+  return [
+      ImagenetResizedConfig(
+          name='%dx%d' % (size, size),
+          size=size,
+          description=f'Images resized to {size}x{size}',
+      ) for size in [8, 16, 32, 64]
+  ]
 
 
 class ImagenetResized(tfds.core.GeneratorBasedBuilder):
@@ -105,9 +103,9 @@ class ImagenetResized(tfds.core.GeneratorBasedBuilder):
     elif size == 64:
       # 64x64 uses more than one file due to its size.
       train1_path, train2_path, val_path = dl_manager.download([
-          '%s/Imagenet64_train_part1_npz.zip' % (_URL_PREFIX),
-          '%s/Imagenet64_train_part2_npz.zip' % (_URL_PREFIX),
-          '%s/Imagenet64_val_npz.zip' % (_URL_PREFIX)
+          f'{_URL_PREFIX}/Imagenet64_train_part1_npz.zip',
+          f'{_URL_PREFIX}/Imagenet64_train_part2_npz.zip',
+          f'{_URL_PREFIX}/Imagenet64_val_npz.zip',
       ])
       train_paths = [train1_path, train2_path]
     else:
@@ -135,8 +133,7 @@ class ImagenetResized(tfds.core.GeneratorBasedBuilder):
   def _generate_examples(self, archive):
     """Yields examples."""
     for fname, fobj in archive:
-      content = fobj.read()
-      if content:
+      if content := fobj.read():
         fobj_mem = io.BytesIO(content)
         data = np.load(fobj_mem, allow_pickle=False)
         size = self.builder_config.size

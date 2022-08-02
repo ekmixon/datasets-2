@@ -77,12 +77,11 @@ class GetDatasetFilesTest(testing.TestCase):
   PATH_PATTERN = 'mnist-train.tfrecord-0000%d-of-00005'
 
   def _get_files(self, instruction):
-    file_instructions = tfrecords_reader._make_file_instructions_from_absolutes(
+    return tfrecords_reader._make_file_instructions_from_absolutes(
         name='mnist',
         split_infos=self.SPLIT_INFOS,
         absolute_instructions=[instruction],
     )
-    return file_instructions
 
   def test_no_skip_no_take(self):
     instruction = tfrecords_reader._AbsoluteInstruction('train', None, None)
@@ -184,10 +183,10 @@ class ReadInstructionTest(testing.TestCase):
 
   def check_from_ri(self, ri, expected):
     res = ri.to_absolute(self.splits)
-    expected_result = []
-    for split_name, from_, to_ in expected:
-      expected_result.append(
-          tfrecords_reader._AbsoluteInstruction(split_name, from_, to_))
+    expected_result = [
+        tfrecords_reader._AbsoluteInstruction(split_name, from_, to_)
+        for split_name, from_, to_ in expected
+    ]
     self.assertEqual(res, expected_result)
     return ri
 
@@ -311,7 +310,7 @@ class ReaderTest(testing.TestCase):
       )
 
   def _write_tfrecord(self, split_name, shards_number, records):
-    path = os.path.join(self.tmp_dir, 'mnist-%s.tfrecord' % split_name)
+    path = os.path.join(self.tmp_dir, f'mnist-{split_name}.tfrecord')
     num_examples = len(records)
     with mock.patch.object(
         tfrecords_writer, '_get_number_shards', return_value=shards_number):
@@ -413,7 +412,7 @@ class ReaderTest(testing.TestCase):
         tuple(sum(shard, [])) for shard in itertools.permutations(shards)
     ]
     ds = ds.batch(12).repeat(100)
-    read_data = set(tuple(e) for e in tfds.as_numpy(ds))
+    read_data = {tuple(e) for e in tfds.as_numpy(ds)}
     for batch in read_data:
       self.assertIn(batch, expected_permutations)
     # There are theoritically 5! (=120) different arrangements, but we would
@@ -506,10 +505,7 @@ class ReaderTest(testing.TestCase):
               )))
 
     def _b(bytes_str):
-      if six.PY2:
-        return list(bytes_str)
-      # Convert to List[bytes] (rather than List[int])
-      return [bytes([b]) for b in bytes_str]
+      return list(bytes_str) if six.PY2 else [bytes([b]) for b in bytes_str]
 
     # Read all the data (single pipeline)
     self.assertCountEqual(read(num_workers=1, index=0), _b(b'abcdefghijkl'))

@@ -59,10 +59,10 @@ class ImagenetteConfig(tfds.core.BuilderConfig):
 
   def __init__(self, size, base, **kwargs):
     super(ImagenetteConfig, self).__init__(
-        # `320px-v2`,...
         name=size + ("-v2" if base == "imagenette2" else ""),
-        description="{} variant.".format(size),
-        **kwargs)
+        description=f"{size} variant.",
+        **kwargs,
+    )
     # e.g. `imagenette2-320.tgz`
     self.dirname = base + {
         "full-size": "",
@@ -74,8 +74,9 @@ class ImagenetteConfig(tfds.core.BuilderConfig):
 def _make_builder_configs():
   configs = []
   for base in ["imagenette2", "imagenette"]:
-    for size in ["full-size", "320px", "160px"]:
-      configs.append(ImagenetteConfig(base=base, size=size))
+    configs.extend(
+        ImagenetteConfig(base=base, size=size)
+        for size in ["full-size", "320px", "160px"])
   return configs
 
 
@@ -103,7 +104,7 @@ class Imagenette(tfds.core.GeneratorBasedBuilder):
   def _split_generators(self, dl_manager):
     """Returns SplitGenerators."""
     dirname = self.builder_config.dirname
-    url = _URL_PREFIX + "{}.tgz".format(dirname)
+    url = _URL_PREFIX + f"{dirname}.tgz"
     path = dl_manager.download_and_extract(url)
     train_path = os.path.join(path, dirname, "train")
     val_path = os.path.join(path, dirname, "val")

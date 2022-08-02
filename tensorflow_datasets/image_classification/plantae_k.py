@@ -120,13 +120,13 @@ class PlantaeK(tfds.core.GeneratorBasedBuilder):
 
   def _generate_examples(self, image_files):
     """Yields examples."""
-    label_map = {pattern: label for pattern, label in _LABEL_MAPPING}
+    label_map = dict(_LABEL_MAPPING)
     regexp = re.compile(r"^(\w+[-_][dh])\d+\.JPG$")
     # Assigns labels to images based on label mapping.
     for original_fname, fpath in image_files.items():
       match = regexp.match(original_fname)
-      if match and match.group(1) in label_map:
-        label = label_map[match.group(1)]
+      if match and match[1] in label_map:
+        label = label_map[match[1]]
         record = {
             "image": fpath,
             "image/filename": original_fname,

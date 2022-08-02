@@ -152,12 +152,12 @@ class FeaturesDict(top_level_feature.TopLevelFeature):
 
   def __repr__(self):
     """Display the feature dictionary."""
-    lines = ['{}({{'.format(type(self).__name__)]
+    lines = [f'{type(self).__name__}({{']
     # Add indentation
     for key, feature in sorted(list(self._feature_dict.items())):
       feature_repr = tensor_feature.get_inner_feature_repr(feature)
-      all_sub_lines = '\'{}\': {},'.format(key, feature_repr)
-      lines.extend('    ' + l for l in all_sub_lines.split('\n'))
+      all_sub_lines = f"\'{key}\': {feature_repr},"
+      lines.extend(f'    {l}' for l in all_sub_lines.split('\n'))
     lines.append('})')
     return '\n'.join(lines)
 
@@ -203,8 +203,8 @@ class FeaturesDict(top_level_feature.TopLevelFeature):
     """See base class for details."""
     if x and not isinstance(x, (dict, FeaturesDict)):
       raise ValueError(
-          'Error while flattening dict: FeaturesDict received a non dict item: '
-          '{}'.format(x))
+          f'Error while flattening dict: FeaturesDict received a non dict item: {x}'
+      )
 
     dict_counter = _DictGetCounter(x)
     out = []
@@ -213,11 +213,8 @@ class FeaturesDict(top_level_feature.TopLevelFeature):
 
     if x and dict_counter.count != len(x):
       raise ValueError(
-          'Error while flattening dict: Not all dict items have been consumed, '
-          'this means that the provided dict structure does not match the '
-          '`FeatureDict`. Please check for typos in the key names. '
-          'Available keys: {}. Unrecognized keys: {}'.format(
-              list(self.keys()), list(set(x.keys()) - set(self.keys()))))
+          f'Error while flattening dict: Not all dict items have been consumed, this means that the provided dict structure does not match the `FeatureDict`. Please check for typos in the key names. Available keys: {list(self.keys())}. Unrecognized keys: {list(set(x.keys()) - set(self.keys()))}'
+      )
     return out
 
   def _nest(self, list_x):
@@ -230,8 +227,8 @@ class FeaturesDict(top_level_feature.TopLevelFeature):
       curr_pos += offset
     if curr_pos != len(list_x):
       raise ValueError(
-          'Error while nesting: Expected length {} does not match input '
-          'length {} of {}'.format(curr_pos, len(list_x), list_x))
+          f'Error while nesting: Expected length {curr_pos} does not match input length {len(list_x)} of {list_x}'
+      )
     return out
 
   def save_metadata(self, data_dir, feature_name=None):
@@ -262,4 +259,4 @@ def to_feature(value: feature_lib.FeatureConnectorArg):
   elif isinstance(value, dict):
     return FeaturesDict(value)
   else:
-    raise ValueError('Feature not supported: {}'.format(value))
+    raise ValueError(f'Feature not supported: {value}')

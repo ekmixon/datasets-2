@@ -108,18 +108,18 @@ class VisualDomainDecathlon(tfds.core.GeneratorBasedBuilder):
   def _split_generators(self, dl_manager):
     if self.builder_config.name == 'imagenet12':
       devkit_path, images_archive = dl_manager.download_and_extract([
-          _URL_PREFIX_VGG + 'decathlon-1.0-devkit.tar.gz',
+          f'{_URL_PREFIX_VGG}decathlon-1.0-devkit.tar.gz',
           tfds.download.Resource(
-              url=_URL_PREFIX_IMAGENET + 'decathlon-1.0-data-imagenet.tar',
-              extract_method=tfds.download.ExtractMethod.NO_EXTRACT),
+              url=f'{_URL_PREFIX_IMAGENET}decathlon-1.0-data-imagenet.tar',
+              extract_method=tfds.download.ExtractMethod.NO_EXTRACT,
+          ),
       ])
     else:
       devkit_path, data_path = dl_manager.download_and_extract([
-          _URL_PREFIX_VGG + 'decathlon-1.0-devkit.tar.gz',
-          _URL_PREFIX_VGG + 'decathlon-1.0-data.tar.gz',
+          f'{_URL_PREFIX_VGG}decathlon-1.0-devkit.tar.gz',
+          f'{_URL_PREFIX_VGG}decathlon-1.0-data.tar.gz',
       ])
-      images_archive = os.path.join(data_path,
-                                    self.builder_config.name + '.tar')
+      images_archive = os.path.join(data_path, f'{self.builder_config.name}.tar')
     annotations_path = os.path.join(devkit_path, 'decathlon-1.0', 'annotations')
     return [
         tfds.core.SplitGenerator(
@@ -168,10 +168,9 @@ def _get_filename_to_label_map(annotations_path, dataset_name, split):
   """Returns a mapping from image filenames to labels, for the given split."""
   filename_to_label = {}
   if split == 'test':
-    filepath = os.path.join(annotations_path,
-                            dataset_name + '_test_stripped.json')
+    filepath = os.path.join(annotations_path, f'{dataset_name}_test_stripped.json')
   else:
-    filepath = os.path.join(annotations_path, dataset_name + '_%s.json' % split)
+    filepath = os.path.join(annotations_path, dataset_name + f'_{split}.json')
   prefix = 'data/'
   with tf.io.gfile.GFile(filepath, mode='r') as f:
     annotations = json.load(f)
@@ -183,13 +182,15 @@ def _get_filename_to_label_map(annotations_path, dataset_name, split):
         filename_to_label[image_filename] = -1
     else:
       # Load a map from category ID to label index.
-      category_id_to_label = {}
-      for i, category_info in enumerate(annotations['categories']):
-        category_id_to_label[category_info['id']] = i
+      category_id_to_label = {
+          category_info['id']: i
+          for i, category_info in enumerate(annotations['categories'])
+      }
       # Load a map from image ID to image filename.
-      image_id_to_filename = {}
-      for example_info in annotations['images']:
-        image_id_to_filename[example_info['id']] = example_info['file_name']
+      image_id_to_filename = {
+          example_info['id']: example_info['file_name']
+          for example_info in annotations['images']
+      }
       # Load the map from image filename to label.
       for example_info in annotations['annotations']:
         image_filename = image_id_to_filename[example_info['image_id']]

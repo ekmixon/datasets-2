@@ -194,7 +194,7 @@ class Split(str):
   """
 
   def __repr__(self) -> str:
-    return "{}({})".format(type(self).__name__, super(Split, self).__repr__())  # pytype: disable=wrong-arg-types
+    return f"{type(self).__name__}({super(Split, self).__repr__()})"
 
 
 Split.TRAIN = Split("train")

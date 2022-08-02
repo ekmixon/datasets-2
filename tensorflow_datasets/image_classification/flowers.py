@@ -76,4 +76,4 @@ class TFFlowers(tfds.core.GeneratorBasedBuilder):
         image_dir, image_file = os.path.split(fname)
         d = os.path.basename(image_dir)
         record = {"image": fobj, "label": d.lower()}
-        yield "%s/%s" % (d, image_file), record
+        yield (f"{d}/{image_file}", record)

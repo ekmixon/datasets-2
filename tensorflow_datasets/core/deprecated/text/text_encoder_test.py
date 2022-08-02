@@ -72,8 +72,7 @@ class ByteTextEncoderTest(parameterized.TestCase, testing.TestCase):
     hello_ids = [i + len(additional_tokens) for i in self.ZH_HELLO_IDS]
     self.assertEqual(hello_ids, encoder.encode(ZH_HELLO))
     # With additional tokens
-    text_additional = '%s %s%s%s' % (additional_tokens[0], ZH_HELLO,
-                                     additional_tokens[1], additional_tokens[2])
+    text_additional = f'{additional_tokens[0]} {ZH_HELLO}{additional_tokens[1]}{additional_tokens[2]}'
     expected_ids = [1, 32 + 1 + len(additional_tokens)] + hello_ids + [2, 3]
     self.assertEqual(expected_ids, encoder.encode(text_additional))
     self.assertEqual(text_additional, encoder.decode(expected_ids))
@@ -102,8 +101,8 @@ class TokenTextEncoderTest(testing.TestCase):
   def test_encode_decode(self):
     encoder = text_encoder.TokenTextEncoder(vocab_list=['hi', 'bye', ZH_HELLO])
     ids = [i + 1 for i in [0, 1, 2, 0]]
-    self.assertEqual(ids, encoder.encode('hi  bye %s hi' % ZH_HELLO))
-    self.assertEqual('hi bye %shi' % ZH_HELLO, encoder.decode(ids))
+    self.assertEqual(ids, encoder.encode(f'hi  bye {ZH_HELLO} hi'))
+    self.assertEqual(f'hi bye {ZH_HELLO}hi', encoder.decode(ids))
 
   def test_oov(self):
     encoder = text_encoder.TokenTextEncoder(
@@ -126,7 +125,7 @@ class TokenTextEncoderTest(testing.TestCase):
 
   def test_tokenization(self):
     encoder = text_encoder.TokenTextEncoder(vocab_list=['hi', 'bye', ZH_HELLO])
-    text = 'hi<<>><<>foo!^* bar && bye (%s hi)' % ZH_HELLO
+    text = f'hi<<>><<>foo!^* bar && bye ({ZH_HELLO} hi)'
     self.assertEqual(['hi', 'foo', 'bar', 'bye',
                       ZH_HELLO.strip(), 'hi'],
                      text_encoder.Tokenizer().tokenize(text))
@@ -175,13 +174,13 @@ class TokenTextEncoderTest(testing.TestCase):
     encoder = text_encoder.TokenTextEncoder(vocab_list=vocab_list)
 
     # No mixed tokens
-    text = 'hi<<>><<>foo!^* bar && bye (%s hi)' % ZH_HELLO
+    text = f'hi<<>><<>foo!^* bar && bye ({ZH_HELLO} hi)'
     # hi=3, foo=OOV, bar=OOV, bye=4, ZH_HELLO=5, hi=3
     text_ids = [i + 1 for i in [3, 6, 6, 4, 5, 3]]
     self.assertEqual(text_ids, encoder.encode(text))
 
     # With mixed tokens
-    text = 'hi<<>><<>foo!<EOS>^* barzoo! FOO && bye (%s hi)' % ZH_HELLO
+    text = f'hi<<>><<>foo!<EOS>^* barzoo! FOO && bye ({ZH_HELLO} hi)'
     # hi=3, foo=OOV, <EOS>=0, bar=OOV, zoo!=1, FOO=OOV, bye=4, ZH_HELLO=5, hi=3
     text_ids = [i + 1 for i in [3, 6, 0, 6, 1, 6, 4, 5, 3]]
     self.assertEqual(text_ids, encoder.encode(text))
@@ -215,13 +214,13 @@ class TokenTextEncoderTest(testing.TestCase):
 class TokenizeTest(parameterized.TestCase, testing.TestCase):
 
   def test_default(self):
-    text = 'hi<<>><<>foo!^* bar &&  bye (%s hi)' % ZH_HELLO
+    text = f'hi<<>><<>foo!^* bar &&  bye ({ZH_HELLO} hi)'
     self.assertEqual(['hi', 'foo', 'bar', 'bye',
                       ZH_HELLO.strip(), 'hi'],
                      text_encoder.Tokenizer().tokenize(text))
 
   def test_with_nonalphanum(self):
-    text = 'hi world<<>><<>foo!^* bar &&  bye (%s hi)' % ZH_HELLO
+    text = f'hi world<<>><<>foo!^* bar &&  bye ({ZH_HELLO} hi)'
     tokens = [
         'hi', ' ', 'world', '<<>><<>', 'foo', '!^* ', 'bar', ' &&  ', 'bye',
         ' (',

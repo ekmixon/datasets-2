@@ -91,5 +91,5 @@ class Malaria(tfds.core.GeneratorBasedBuilder):
         if fnmatch.fnmatch(file_name, "*.png"):
           image = os.path.join(folder_path, file_name)
           label = folder.lower()
-          image_id = "%s_%s" % (folder, file_name)
+          image_id = f"{folder}_{file_name}"
           yield image_id, {"image": image, "label": label}

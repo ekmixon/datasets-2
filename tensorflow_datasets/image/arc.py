@@ -56,7 +56,7 @@ class ARCConfig(tfds.core.BuilderConfig):
     super(ARCConfig, self).__init__(
         version=tfds.core.Version(version), **kwargs)
     self.commit = commit
-    self.download_url = "{}zipball/{}".format(_BASE_URL, self.commit)
+    self.download_url = f"{_BASE_URL}zipball/{self.commit}"
 
 
 class ARC(tfds.core.GeneratorBasedBuilder):

@@ -74,8 +74,8 @@ class LostAndFoundConfig(tfds.core.BuilderConfig):
     if disparity_maps:
       self.features.append('disparity_map')
 
-    self.left_image_string = 'leftImg{}bit'.format('16' if use_16bit else '8')
-    self.right_image_string = 'rightImg{}bit'.format('16' if use_16bit else '8')
+    self.left_image_string = f"leftImg{'16' if use_16bit else '8'}bit"
+    self.right_image_string = f"rightImg{'16' if use_16bit else '8'}bit"
 
 
 class LostAndFound(tfds.core.GeneratorBasedBuilder):
@@ -224,7 +224,7 @@ class LostAndFound(tfds.core.GeneratorBasedBuilder):
 
         features = {
             feat: path.join(paths_city_root[feat],
-                            '{}_{}.png'.format(image_id, file_suffix[feat]))
+                            f'{image_id}_{file_suffix[feat]}.png')
             for feat in paths
         }
         features['image_id'] = image_id

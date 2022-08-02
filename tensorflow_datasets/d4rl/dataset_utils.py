@@ -125,12 +125,11 @@ def _get_nested_metadata(dataset: Dict[str, Any],
   It assumes that the flattened metadata keys are well-formed.
   """
   episode_metadata = {}
-  for k in dataset.keys():
+  for k, leaf_value in dataset.items():
     if f'{prefix}/' not in k:
       continue
     keys = k.split('/')[1:]
     nested_dict = episode_metadata
-    leaf_value = dataset[k]
     for index, nested_key in enumerate(keys):
       if index == (len(keys) - 1):
         nested_dict[nested_key] = leaf_value
@@ -156,15 +155,20 @@ def _get_episode(steps: Dict[str, Any], episode_metadata: Dict[str, Any],
      A dict with data specific to one episode, already broken into steps.
   """
   # It's an initial step if the episode is empty.
-  episode = {}
-  for k in [
-      'is_first', 'is_last', 'observation', 'action', 'reward', 'discount'
-  ]:
-    episode[k] = steps[k][begin:end]
-
+  episode = {
+      k: steps[k][begin:end]
+      for k in [
+          'is_first',
+          'is_last',
+          'observation',
+          'action',
+          'reward',
+          'discount',
+      ]
+  }
   episode['is_last'] = [False] * (end - begin)
   episode['is_terminal'] = [False] * (end - begin)
-  if 'infos' in steps.keys():
+  if 'infos' in steps:
     episode['infos'] = {}
     for k in steps['infos'].keys():
       episode['infos'][k] = steps['infos'][k][begin:end]
@@ -198,7 +202,7 @@ def _get_episode(steps: Dict[str, Any], episode_metadata: Dict[str, Any],
         np.concatenate((episode['discount'], [0.0])), dtype=np.float32)
     episode['is_terminal'] = np.concatenate((episode['is_terminal'], [True]))
     episode['is_last'] = np.concatenate((episode['is_last'], [True]))
-    if 'infos' in steps.keys():
+    if 'infos' in steps:
       for k in steps['infos'].keys():
         episode['infos'][k] = np.concatenate(
             (episode['infos'][k], [np.zeros_like(steps['infos'][k][0])]))
@@ -211,7 +215,7 @@ def _get_episode(steps: Dict[str, Any], episode_metadata: Dict[str, Any],
     episode['is_last'][-1] = True
   full_episode = {'steps': episode}
   if episode_metadata:
-    full_episode.update(episode_metadata)
+    full_episode |= episode_metadata
   return full_episode
 
 

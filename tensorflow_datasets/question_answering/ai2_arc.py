@@ -112,24 +112,22 @@ class Ai2Arc(tfds.core.GeneratorBasedBuilder):
             name=tfds.Split.TRAIN,
             gen_kwargs={
                 "filepath":
-                    os.path.join(base_path,
-                                 self.builder_config.name + "-Train.jsonl")
+                os.path.join(base_path,
+                             f"{self.builder_config.name}-Train.jsonl")
             },
         ),
         tfds.core.SplitGenerator(
             name=tfds.Split.VALIDATION,
             gen_kwargs={
                 "filepath":
-                    os.path.join(base_path,
-                                 self.builder_config.name + "-Dev.jsonl")
+                os.path.join(base_path, f"{self.builder_config.name}-Dev.jsonl")
             },
         ),
         tfds.core.SplitGenerator(
             name=tfds.Split.TEST,
             gen_kwargs={
                 "filepath":
-                    os.path.join(base_path,
-                                 self.builder_config.name + "-Test.jsonl")
+                os.path.join(base_path, f"{self.builder_config.name}-Test.jsonl")
             },
         ),
     ]

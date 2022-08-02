@@ -48,8 +48,7 @@ class _FakeResponse(object):
 
   def iter_content(self, chunk_size):
     del chunk_size
-    for line in self.raw:
-      yield line
+    yield from self.raw
 
 
 class DownloaderTest(testing.TestCase):
@@ -62,7 +61,7 @@ class DownloaderTest(testing.TestCase):
     self.url = 'http://example.com/foo.tar.gz'
     self.resource = resource_lib.Resource(url=self.url)
     self.path = os.path.join(self.tmp_dir, 'foo.tar.gz')
-    self.incomplete_path = '%s.incomplete' % self.path
+    self.incomplete_path = f'{self.path}.incomplete'
     self.response = b'This \nis an \nawesome\n response!'
     self.resp_checksum = hashlib.sha256(self.response).hexdigest()
     self.cookies = {}

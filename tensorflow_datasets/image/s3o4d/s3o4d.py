@@ -113,10 +113,13 @@ class S3o4d(tfds.core.GeneratorBasedBuilder):
       latents[key] = latents[key].astype(np.float32)
     for fname, fobj in dl_manager.iter_archive(img_path):
       idx = int(fname[-9:-4]) % 80000
-      yield label + '_' + fname[-9:-4], {
-          'image': fobj,
-          'label': label,
-          'illumination': latents['illumination'][idx],
-          'pose_mat': latents['pose_mat'][idx],
-          'pose_quat': latents['pose_quat'][idx],
-      }
+      yield (
+          f'{label}_{fname[-9:-4]}',
+          {
+              'image': fobj,
+              'label': label,
+              'illumination': latents['illumination'][idx],
+              'pose_mat': latents['pose_mat'][idx],
+              'pose_quat': latents['pose_quat'][idx],
+          },
+      )

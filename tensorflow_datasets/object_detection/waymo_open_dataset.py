@@ -235,8 +235,7 @@ class WaymoOpenDataset(tfds.core.BeamBasedBuilder):
     def _process_example(tf_record_file):
       for image_and_annotation in _generate_images_and_annotations(
           tf_record_file):
-        key = "%s:%s" % (image_and_annotation["context"]["name"],
-                         image_and_annotation["timestamp_micros"])
+        key = f'{image_and_annotation["context"]["name"]}:{image_and_annotation["timestamp_micros"]}'
         yield key, image_and_annotation
 
     return (pipeline
@@ -282,9 +281,9 @@ def _generate_images_and_annotations(tf_record_file):
                                  image_height)
 
       camera_name = open_dataset.CameraName.Name.Name(frame_image.name)
-      image_and_annotation["camera_" + camera_name] = {
+      image_and_annotation[f"camera_{camera_name}"] = {
           "image": frame_image.image,
-          "labels": labels
+          "labels": labels,
       }
 
     yield image_and_annotation

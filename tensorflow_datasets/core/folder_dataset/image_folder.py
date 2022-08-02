@@ -129,8 +129,8 @@ class ImageFolder(dataset_builder.DatasetBuilder):
 
   def _download_and_prepare(self, **kwargs) -> NoReturn:
     raise NotImplementedError(
-        'No need to call download_and_prepare function for {}.'.format(
-            type(self).__name__))
+        f'No need to call download_and_prepare function for {type(self).__name__}.'
+    )
 
   def download_and_prepare(self, **kwargs):  # -> NoReturn:
     return self._download_and_prepare()

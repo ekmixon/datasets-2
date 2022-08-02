@@ -363,7 +363,7 @@ def _parse_github_path(path: str) -> Tuple[str, str, str]:
   if not path.startswith(_URI_PREFIX):
     raise ValueError(err_msg)
   if path.endswith('/'):
-    raise ValueError(err_msg + ' Trailing `/` not supported.')
+    raise ValueError(f'{err_msg} Trailing `/` not supported.')
   parts = path[len(_URI_PREFIX):].split('/')
   if len(parts) < 4:
     raise ValueError(err_msg)

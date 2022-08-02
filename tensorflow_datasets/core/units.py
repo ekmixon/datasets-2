@@ -46,7 +46,7 @@ def _size_str(size_in_bytes):
     value = size_in_bytes / size_bytes
     if value >= 1.0:
       return "{:.2f} {}".format(value, name)
-  return "{} {}".format(int(size_in_bytes), "bytes")
+  return f"{int(size_in_bytes)} bytes"
 
 
 class Size(int):

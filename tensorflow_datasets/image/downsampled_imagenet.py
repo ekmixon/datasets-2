@@ -58,7 +58,7 @@ class DownsampledImagenetConfig(tfds.core.BuilderConfig):
       **kwargs: keyword arguments forwarded to super.
     """
     if data not in _DATA_OPTIONS:
-      raise ValueError("data must be one of %s" % _DATA_OPTIONS)
+      raise ValueError(f"data must be one of {_DATA_OPTIONS}")
 
     super(DownsampledImagenetConfig, self).__init__(**kwargs)
     self.data = data
@@ -96,8 +96,8 @@ class DownsampledImagenet(tfds.core.GeneratorBasedBuilder):
   def _split_generators(self, dl_manager):
     """Returns SplitGenerators."""
 
-    train_url = _DL_URL + "train_" + self.builder_config.name + ".tar"
-    valid_url = _DL_URL + "valid_" + self.builder_config.name + ".tar"
+    train_url = f"{_DL_URL}train_{self.builder_config.name}.tar"
+    valid_url = f"{_DL_URL}valid_{self.builder_config.name}.tar"
 
     train_path, valid_path = dl_manager.download([
         train_url,

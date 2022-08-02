@@ -124,10 +124,10 @@ class SpeechCommands(tfds.core.GeneratorBasedBuilder):
         continue
       relpath, wavname = os.path.split(path)
       _, word = os.path.split(relpath)
-      example_id = '{}_{}'.format(word, wavname)
+      example_id = f'{word}_{wavname}'
       if word in WORDS:
         label = word
-      elif word == SILENCE or word == BACKGROUND_NOISE:
+      elif word in [SILENCE, BACKGROUND_NOISE]:
         # The main tar file already contains all of the test files, except for
         # the silence ones. In fact it does not contain silence files at all.
         # So for the test set we take the silence files from the test tar file,
@@ -149,7 +149,7 @@ class SpeechCommands(tfds.core.GeneratorBasedBuilder):
         for start in range(0,
                            len(audio_samples) - SAMPLE_RATE, SAMPLE_RATE // 2):
           audio_segment = audio_samples[start:start + SAMPLE_RATE]
-          cur_id = '{}_{}'.format(example_id, start)
+          cur_id = f'{example_id}_{start}'
           example = {'audio': audio_segment, 'label': label}
           yield cur_id, example
       else:

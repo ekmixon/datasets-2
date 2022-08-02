@@ -102,7 +102,7 @@ class Food101(tfds.core.GeneratorBasedBuilder):
       data = json.loads(f.read())
     for label, images in data.items():
       for image_name in images:
-        image = os.path.join(image_dir_path, image_name + ".jpg")
+        image = os.path.join(image_dir_path, f"{image_name}.jpg")
         features = {"image": image, "label": label}
         if self.version > "2.0.0":
           features["id"] = image_name

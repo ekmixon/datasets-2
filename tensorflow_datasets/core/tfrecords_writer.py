@@ -85,7 +85,7 @@ def _raise_error_for_duplicated_keys(example1, example2, example_specs):
   ex2 = parser.parse_example(example2)
   logging.error("1st example: %s", ex1)
   logging.error("2nd example: %s", ex2)
-  raise AssertionError(msg + " See logs above to view the examples.")
+  raise AssertionError(f"{msg} See logs above to view the examples.")
 
 
 def _get_index_path(path: str) -> type_utils.PathLike:
@@ -148,8 +148,9 @@ def _get_shard_boundaries(
   if num_examples == 0:
     raise AssertionError("No examples were yielded.")
   if num_examples < number_of_shards:
-    raise AssertionError("num_examples ({}) < number_of_shards ({})".format(
-        num_examples, number_of_shards))
+    raise AssertionError(
+        f"num_examples ({num_examples}) < number_of_shards ({number_of_shards})"
+    )
   return [
       int(round(num_examples * (float(i) / number_of_shards)))
       for i in range(1, number_of_shards + 1)
@@ -330,10 +331,7 @@ class Writer(object):
 
 
 # Make a long out of int. Necessary for Beam on Py2.
-if six.PY2:
-  _long_for_py2 = long  # pylint: disable=invalid-name,undefined-variable
-else:
-  _long_for_py2 = lambda int_val: int_val
+_long_for_py2 = long if six.PY2 else (lambda int_val: int_val)
 
 
 class BeamWriter(object):
@@ -372,7 +370,7 @@ class BeamWriter(object):
         disable_shuffling=disable_shuffling,
         file_format=file_format)
     self._path = os.fspath(path)
-    self._split_info_path = "%s.split_info.json" % path
+    self._split_info_path = f"{path}.split_info.json"
     self._serializer = example_serializer.ExampleSerializer(example_specs)
     self._example_specs = example_specs
     self._hasher = hashing.Hasher(hash_salt)
@@ -393,10 +391,7 @@ class BeamWriter(object):
     """Returns (shard#, (hkey, serialized_example))."""
     key, example = key_example
     serialized_example = self._serializer.serialize_example(example)
-    if self._disable_shuffling:
-      hkey = key
-    else:
-      hkey = self._hasher.hash_key(key)
+    hkey = key if self._disable_shuffling else self._hasher.hash_key(key)
     bucketid = shuffle.get_bucket_number(hkey, _BEAM_NUM_TEMP_SHARDS)
     hkey = _long_for_py2(hkey)
     bucketid = _long_for_py2(bucketid)

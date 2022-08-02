@@ -71,7 +71,7 @@ class ExtractorTest(testing.TestCase):
     self.assertIsInstance(path, os.PathLike)
     for name, content in expected_files.items():
       path = os.path.join(self.to_path, name)
-      self.assertEqual(_read(path), content, 'File %s has bad content.' % path)
+      self.assertEqual(_read(path), content, f'File {path} has bad content.')
 
   def test_zip(self):
     self._test_extract(ZIP, 'arch1.zip', {

@@ -86,11 +86,7 @@ class TensorInfo(object):
             self.default_value == other.default_value)
 
   def __repr__(self):
-    return '{}(shape={}, dtype={})'.format(
-        type(self).__name__,
-        self.shape,
-        repr(self.dtype),
-    )
+    return f'{type(self).__name__}(shape={self.shape}, dtype={repr(self.dtype)})'
 
 
 @six.add_metaclass(abc.ABCMeta)
@@ -301,7 +297,7 @@ class FeatureConnector(object):
       Dict containing the FeatureConnector metadata. Will be forwarded to
         `from_json_content` when reconstructing the feature.
     """
-    return dict()
+    return {}
 
   def save_config(self, root_dir: str) -> None:
     """Exports the `FeatureConnector` to a file.
@@ -629,7 +625,7 @@ class FeatureConnector(object):
     """Display the feature dictionary."""
     tensor_info = self.get_tensor_info()
     if not isinstance(tensor_info, TensorInfo):
-      return '{}({})'.format(type(self).__name__, tensor_info)
+      return f'{type(self).__name__}({tensor_info})'
 
     # Ensure ordering of keys by adding them one-by-one
     repr_info = collections.OrderedDict()
@@ -639,11 +635,8 @@ class FeatureConnector(object):
     for k, v in additional_info.items():
       repr_info[k] = v
 
-    info_str = ', '.join(['%s=%s' % (k, v) for k, v in repr_info.items()])
-    return '{}({})'.format(
-        type(self).__name__,
-        info_str,
-    )
+    info_str = ', '.join([f'{k}={v}' for k, v in repr_info.items()])
+    return f'{type(self).__name__}({info_str})'
 
   def save_metadata(self, data_dir, feature_name):
     """Save the feature metadata on disk.
@@ -708,11 +701,7 @@ def _has_shape_ambiguity(in_shape: Shape, out_shape: Shape) -> bool:
   if isinstance(in_shape, tf.TensorShape):
     in_shape = in_shape.as_list()  # pytype: disable=attribute-error
 
-  return bool(
-      in_shape[0] is None  # Empty sequence
-      # Unknown output shape (note that sequence length isn't present,
-      # as `self.shape` is called from the inner feature).
-      and None in out_shape)
+  return in_shape[0] is None and None in out_shape
 
 
 def _make_empty_seq_output(

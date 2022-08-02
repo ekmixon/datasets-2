@@ -155,11 +155,10 @@ class DatasetInfo(object):
     if homepage:
       self._info_proto.location.urls[:] = [homepage]
 
-    if features:
-      if not isinstance(features, top_level_feature.TopLevelFeature):
-        raise ValueError(
-            "DatasetInfo.features only supports FeaturesDict or Sequence at "
-            "the top-level. Got {}".format(features))
+    if features and not isinstance(features, top_level_feature.TopLevelFeature):
+      raise ValueError(
+          f"DatasetInfo.features only supports FeaturesDict or Sequence at the top-level. Got {features}"
+      )
     self._features = features
     self._splits = splits_lib.SplitDict([], dataset_name=self._builder.name)
     if supervised_keys is not None:
@@ -168,8 +167,8 @@ class DatasetInfo(object):
 
     if metadata and not isinstance(metadata, Metadata):
       raise ValueError(
-          "Metadata should be a `tfds.core.Metadata` instance. Received "
-          "{}".format(metadata))
+          f"Metadata should be a `tfds.core.Metadata` instance. Received {metadata}"
+      )
     self._metadata = metadata
 
     # Is this object initialized with both the static and the dynamic data?
@@ -264,9 +263,8 @@ class DatasetInfo(object):
 
   @property
   def file_format(self) -> Optional[file_adapters.FileFormat]:
-    if not self.as_proto.file_format:
-      return None
-    return file_adapters.FileFormat(self.as_proto.file_format)
+    return (file_adapters.FileFormat(self.as_proto.file_format)
+            if self.as_proto.file_format else None)
 
   def set_file_format(
       self,
@@ -445,9 +443,8 @@ class DatasetInfo(object):
 
     if self._builder._version != self.version:  # pylint: disable=protected-access
       raise AssertionError(
-          "The constructed DatasetInfo instance and the restored proto version "
-          "do not match. Builder version: {}. Proto version: {}".format(
-              self._builder._version, self.version))  # pylint: disable=protected-access
+          f"The constructed DatasetInfo instance and the restored proto version do not match. Builder version: {self._builder._version}. Proto version: {self.version}"
+      )
 
     # Mark as fully initialized.
     self._fully_initialized = True
@@ -483,7 +480,7 @@ class DatasetInfo(object):
       config_description = SKIP
 
     lines = ["tfds.core.DatasetInfo("]
-    for key, value in [
+    lines.extend(f"    {key}={value}," for key, value in [
         ("name", repr(self.name)),
         ("full_name", repr(self.full_name)),
         ("description", _indent(f'"""\n{self.description}\n"""')),
@@ -498,10 +495,11 @@ class DatasetInfo(object):
         ("splits", splits),
         ("citation", _indent(f'"""{self.citation}"""')),
         # Proto add a \n that we strip.
-        ("redistribution_info", str(self.redistribution_info).strip() or SKIP),
-    ]:
-      if value != SKIP:
-        lines.append(f"    {key}={value},")
+        (
+            "redistribution_info",
+            str(self.redistribution_info).strip() or SKIP,
+        ),
+    ] if value != SKIP)
     lines.append(")")
     return "\n".join(lines)
 
@@ -541,10 +539,9 @@ def _supervised_keys_to_proto(
         "`supervised_keys` must contain a tuple of 2 or 3 elements.\n"
         f"got: {keys!r}")
 
-  proto = dataset_info_pb2.SupervisedKeys(
+  return dataset_info_pb2.SupervisedKeys(
       tuple=dataset_info_pb2.SupervisedKeys.Tuple(
           items=(_nest_to_proto(key) for key in keys)))
-  return proto
 
 
 def _nest_from_proto(proto: dataset_info_pb2.SupervisedKeys.Nest) -> Nest:
@@ -585,7 +582,7 @@ def _supervised_keys_from_proto(
 def _indent(content):
   """Add indentation to all lines except the first."""
   lines = content.split("\n")
-  return "\n".join([lines[0]] + ["    " + l for l in lines[1:]])
+  return "\n".join([lines[0]] + [f"    {l}" for l in lines[1:]])
 
 
 def _populate_shape(shape_or_dict, prefix, schema_features):
@@ -611,8 +608,7 @@ def get_dataset_feature_statistics(builder, split):
   # TODO(epot): Avoid hardcoding file format.
   filetype_suffix = "tfrecord"
   if filetype_suffix not in ["tfrecord", "csv"]:
-    raise ValueError(
-        "Cannot generate statistics for filetype {}".format(filetype_suffix))
+    raise ValueError(f"Cannot generate statistics for filetype {filetype_suffix}")
   filepattern = naming.filepattern_for_dataset_split(builder.name, split,
                                                      builder.data_dir,
                                                      filetype_suffix)
@@ -641,9 +637,7 @@ def get_dataset_feature_statistics(builder, split):
 def read_from_json(path: type_utils.PathLike) -> dataset_info_pb2.DatasetInfo:
   """Read JSON-formatted proto into DatasetInfo proto."""
   json_str = utils.as_path(path).read_text()
-  # Parse it back into a proto.
-  parsed_proto = json_format.Parse(json_str, dataset_info_pb2.DatasetInfo())
-  return parsed_proto
+  return json_format.Parse(json_str, dataset_info_pb2.DatasetInfo())
 
 
 def pack_as_supervised_ds(
@@ -655,9 +649,7 @@ def pack_as_supervised_ds(
       len(ds.element_spec) == 2):
     x_key, y_key = ds_info.supervised_keys
     ds = ds.map(lambda x, y: {x_key: x, y_key: y})
-    return ds
-  else:  # If dataset isn't a supervised tuple (input, label), return as-is
-    return ds
+  return ds
 
 
 @six.add_metaclass(abc.ABCMeta)
@@ -716,7 +708,7 @@ class BeamMetadataDict(MetadataDict):
     self._tempdir = tempfile.mkdtemp("tfds_beam_metadata")
 
   def _temp_filepath(self, key):
-    return os.path.join(self._tempdir, "%s.json" % key)
+    return os.path.join(self._tempdir, f"{key}.json")
 
   def __setitem__(self, key, item):
     """Creates write sink for beam PValues or sets value of key in `dict`.
@@ -742,7 +734,7 @@ class BeamMetadataDict(MetadataDict):
           f"a @beam.ptransform_fn. Got: {key}: {item}")
     elif isinstance(item, beam.pvalue.PValue):
       if key in self:
-        raise ValueError("Already added PValue with key: %s" % key)
+        raise ValueError(f"Already added PValue with key: {key}")
       logging.info("Lazily adding metadata item with Beam: %s", key)
 
       def _to_json(item_list):
@@ -753,15 +745,13 @@ class BeamMetadataDict(MetadataDict):
         item = item_list[0]
         return json.dumps(item)
 
-      _ = (
-          item
-          | "metadata_%s_tolist" % key >> beam.combiners.ToList()
-          | "metadata_%s_tojson" % key >> beam.Map(_to_json)
-          | "metadata_%s_write" % key >> beam.io.WriteToText(
-              self._temp_filepath(key),
-              num_shards=1,
-              shard_name_template="",
-          ))
+      _ = ((item | f"metadata_{key}_tolist" >> beam.combiners.ToList())
+           | f"metadata_{key}_tojson" >> beam.Map(_to_json)
+           | (f"metadata_{key}_write" >> beam.io.WriteToText(
+               self._temp_filepath(key),
+               num_shards=1,
+               shard_name_template="",
+           )))
     super(BeamMetadataDict, self).__setitem__(key, item)
 
   def save_metadata(self, data_dir):

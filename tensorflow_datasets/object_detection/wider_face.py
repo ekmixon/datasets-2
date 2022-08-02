@@ -121,10 +121,10 @@ class WiderFace(tfds.core.GeneratorBasedBuilder):
     pattern_annot = re.compile(r'(\d+) (\d+) (\d+) (\d+) (\d+) '
                                r'(\d+) (\d+) (\d+) (\d+) (\d+) \n')
     annot_dir = 'wider_face_split'
-    annot_fname = ('wider_face_test_filelist.txt' if split == 'test' else
-                   'wider_face_' + split + '_bbx_gt.txt')
+    annot_fname = ('wider_face_test_filelist.txt'
+                   if split == 'test' else f'wider_face_{split}_bbx_gt.txt')
     annot_file = os.path.join(annot_dir, annot_fname)
-    image_dir = os.path.join(extracted_dirs['wider_' + split], 'WIDER_' + split,
+    image_dir = os.path.join(extracted_dirs[f'wider_{split}'], f'WIDER_{split}',
                              'images')
     annot_dir = extracted_dirs['wider_annot']
     annot_path = os.path.join(annot_dir, annot_file)
@@ -135,7 +135,7 @@ class WiderFace(tfds.core.GeneratorBasedBuilder):
         match = pattern_fname.match(line)
         if match is None:
           break
-        fname = match.group(1)
+        fname = match[1]
         image_fullpath = os.path.join(image_dir, fname)
         faces = []
         if split != 'test':
@@ -155,7 +155,7 @@ class WiderFace(tfds.core.GeneratorBasedBuilder):
               line = f.readline()
               match = pattern_annot.match(line)
               if not match:
-                raise ValueError('Cannot parse: %s' % image_fullpath)
+                raise ValueError(f'Cannot parse: {image_fullpath}')
               (xmin, ymin, wbox, hbox, blur, expression, illumination, invalid,
                occlusion, pose) = map(int, match.groups())
               ymax = np.clip(ymin + hbox, a_min=0, a_max=height)

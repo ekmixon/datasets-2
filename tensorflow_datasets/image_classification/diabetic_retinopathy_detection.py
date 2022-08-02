@@ -178,7 +178,7 @@ class DiabeticRetinopathyDetection(tfds.core.GeneratorBasedBuilder):
               for fname in tf.io.gfile.listdir(images_dir_path)
               if fname.endswith(".jpeg")]
     for name, label in data:
-      image_filepath = "%s/%s.jpeg" % (images_dir_path, name)
+      image_filepath = f"{images_dir_path}/{name}.jpeg"
       record = {
           "name": name,
           "image": self._process_image(image_filepath),

@@ -259,7 +259,7 @@ def _read_extracted_data(
   # Load data splits.
   split_indices = {}
   for split_name in ['train', 'valid', 'test']:
-    with (split_path / ('%s.csv.gz' % split_name)).open('rb') as fp:
+    with (split_path / f'{split_name}.csv.gz').open('rb') as fp:
       indices = pd.read_csv(fp, compression='gzip', header=None).values.T[0]
       split_indices[split_name] = indices
 

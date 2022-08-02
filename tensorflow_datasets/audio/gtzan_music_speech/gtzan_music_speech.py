@@ -91,7 +91,7 @@ class GTZANMusicSpeech(tfds.core.GeneratorBasedBuilder):
         res = name_regex.match(full_file_name)
         if not res:
           continue
-        label = res.group(2)
+        label = res[2]
         key = fname
         example = {
             "audio": full_file_name,

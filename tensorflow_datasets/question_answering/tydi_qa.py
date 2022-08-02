@@ -114,9 +114,9 @@ class TydiQA(tfds.core.GeneratorBasedBuilder):
 
   def _split_generators(self, dl_manager):
     urls_to_download = {
-        "train": _GOLD_URL_PREFIX + "train.json",
-        "validation": _GOLD_URL_PREFIX + "dev.json",
-        "lang-validation": _GOLD_URL_PREFIX + "dev.tgz",
+        "train": f"{_GOLD_URL_PREFIX}train.json",
+        "validation": f"{_GOLD_URL_PREFIX}dev.json",
+        "lang-validation": f"{_GOLD_URL_PREFIX}dev.tgz",
     }
     for lang_iso in LANGUAGES:
       if lang_iso == "en":

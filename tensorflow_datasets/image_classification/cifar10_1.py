@@ -65,7 +65,7 @@ class Cifar10_1Config(tfds.core.BuilderConfig):  # pylint: disable=invalid-name
       **kwargs: keyword arguments forwarded to super.
     """
     if data not in _DATA_OPTIONS:
-      raise ValueError("data must be one of %s" % _DATA_OPTIONS)
+      raise ValueError(f"data must be one of {_DATA_OPTIONS}")
     kwargs.setdefault("name", data)
     super(Cifar10_1Config, self).__init__(**kwargs)
     self.data = data

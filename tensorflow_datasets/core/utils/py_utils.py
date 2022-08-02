@@ -140,7 +140,7 @@ class memoized_property(property):  # pylint: disable=invalid-name
       return self
     if self.fget is None:  # pytype: disable=attribute-error
       raise AttributeError('unreadable attribute')
-    attr = '__cached_' + self.fget.__name__  # pytype: disable=attribute-error
+    attr = f'__cached_{self.fget.__name__}'
     cached = getattr(obj, attr, None)
     if cached is None:
       cached = self.fget(obj)  # pytype: disable=attribute-error
@@ -175,10 +175,7 @@ def map_nested(function, data_struct, dict_only=False, map_tuple=False):
       mapped = [
           map_nested(function, v, dict_only, map_tuple) for v in data_struct
       ]
-      if isinstance(data_struct, list):
-        return mapped
-      else:
-        return tuple(mapped)
+      return mapped if isinstance(data_struct, list) else tuple(mapped)
   # Singleton
   return function(data_struct)
 
@@ -208,9 +205,7 @@ def flatten_nest_dict(d):
   flat_dict = NonMutableDict()
   for k, v in d.items():
     if isinstance(v, dict):
-      flat_dict.update({
-          '{}/{}'.format(k, k2): v2 for k2, v2 in flatten_nest_dict(v).items()
-      })
+      flat_dict.update({f'{k}/{k2}': v2 for k2, v2 in flatten_nest_dict(v).items()})
     else:
       flat_dict[k] = v
   return flat_dict
@@ -266,17 +261,15 @@ def pack_as_nest_dict(flat_d, nest_d):
   for k, v in nest_d.items():
     if isinstance(v, dict):
       v_flat = flatten_nest_dict(v)
-      sub_d = {
-          k2: flat_d.pop('{}/{}'.format(k, k2)) for k2, _ in v_flat.items()
-      }
+      sub_d = {k2: flat_d.pop(f'{k}/{k2}') for k2, _ in v_flat.items()}
       # Recursivelly pack the dictionary
       nest_out_d[k] = pack_as_nest_dict(sub_d, v)
     else:
       nest_out_d[k] = flat_d.pop(k)
   if flat_d:  # At the end, flat_d should be empty
     raise ValueError(
-        'Flat dict strucure do not match the nested dict. Extra keys: '
-        '{}'.format(list(flat_d.keys())))
+        f'Flat dict strucure do not match the nested dict. Extra keys: {list(flat_d.keys())}'
+    )
   return nest_out_d
 
 
@@ -290,7 +283,7 @@ def _get_incomplete_path(filename):
   """Returns a temporary filename based on filename."""
   random_suffix = ''.join(
       random.choice(string.ascii_uppercase + string.digits) for _ in range(6))
-  return filename + '.incomplete' + random_suffix
+  return f'{filename}.incomplete{random_suffix}'
 
 
 @contextlib.contextmanager
@@ -323,7 +316,7 @@ def incomplete_file(
 @contextlib.contextmanager
 def atomic_write(path, mode):
   """Writes to path atomically, by writing to temp file and renaming it."""
-  tmp_path = '%s%s_%s' % (path, constants.INCOMPLETE_SUFFIX, uuid.uuid4().hex)
+  tmp_path = f'{path}{constants.INCOMPLETE_SUFFIX}_{uuid.uuid4().hex}'
   with tf.io.gfile.GFile(tmp_path, mode) as file_:
     yield file_
   tf.io.gfile.rename(tmp_path, path, overwrite=True)

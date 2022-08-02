@@ -67,7 +67,7 @@ class EurosatConfig(tfds.core.BuilderConfig):
       **kwargs: keyword arguments forwarded to super.
     """
     if selection not in _DATA_OPTIONS:
-      raise ValueError('selection must be one of %s' % _DATA_OPTIONS)
+      raise ValueError(f'selection must be one of {_DATA_OPTIONS}')
 
     super(EurosatConfig, self).__init__(
         version=tfds.core.Version('2.0.0'), **kwargs)

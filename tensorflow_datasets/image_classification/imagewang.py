@@ -77,11 +77,10 @@ class ImagewangConfig(tfds.core.BuilderConfig):
 
 
 def _make_builder_configs():
-  configs = []
-  for size in _SIZES:
-    configs.append(
-        ImagewangConfig(name=size, size=size, description=_DESCRIPTION_SHORT))
-  return configs
+  return [
+      ImagewangConfig(name=size, size=size, description=_DESCRIPTION_SHORT)
+      for size in _SIZES
+  ]
 
 
 class Imagewang(tfds.core.GeneratorBasedBuilder):
@@ -106,15 +105,14 @@ class Imagewang(tfds.core.GeneratorBasedBuilder):
   def _split_generators(self, dl_manager):
     """Returns SplitGenerators."""
     size = self.builder_config.size
-    if size in _SIZES:
-      size_str = "" if size == "full-size" else "-" + size[:-2]
-      url = "/".join([_URL_PREFIX, "imagewang%s.tgz" % size_str])
-      path = dl_manager.download_and_extract(url)
-      train_path = os.path.join(path, _SIZE_TO_DIRNAME[size], "train")
-      val_path = os.path.join(path, _SIZE_TO_DIRNAME[size], "val")
-    else:
-      raise ValueError("size must be one of %s" % _SIZES)
+    if size not in _SIZES:
+      raise ValueError(f"size must be one of {_SIZES}")
 
+    size_str = "" if size == "full-size" else f"-{size[:-2]}"
+    url = "/".join([_URL_PREFIX, f"imagewang{size_str}.tgz"])
+    path = dl_manager.download_and_extract(url)
+    train_path = os.path.join(path, _SIZE_TO_DIRNAME[size], "train")
+    val_path = os.path.join(path, _SIZE_TO_DIRNAME[size], "val")
     return [
         tfds.core.SplitGenerator(
             name=tfds.Split.TRAIN,

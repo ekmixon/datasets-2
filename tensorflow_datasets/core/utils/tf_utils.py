@@ -75,27 +75,24 @@ class TFGraphRunner(object):
 
   def run(self, fct, input_):
     """Execute the given TensorFlow function."""
-    # TF 2.0
     if tf.executing_eagerly():
       return fct(input_).numpy()
-    # TF 1.0
-    else:
-      # Should compile the function if this is the first time encountered
-      if not isinstance(input_, np.ndarray):
-        input_ = np.array(input_)
-      run_args = RunArgs(fct=fct, input=input_)
-      signature = self._build_signature(run_args)
-      if signature not in self._graph_run_cache:
-        graph_run = self._build_graph_run(run_args)
-        self._graph_run_cache[signature] = graph_run
-      else:
-        graph_run = self._graph_run_cache[signature]
+    # Should compile the function if this is the first time encountered
+    if not isinstance(input_, np.ndarray):
+      input_ = np.array(input_)
+    run_args = RunArgs(fct=fct, input=input_)
+    signature = self._build_signature(run_args)
+    if signature in self._graph_run_cache:
+      graph_run = self._graph_run_cache[signature]
 
-      # Then execute the cached graph
-      return graph_run.session.run(
-          graph_run.output,
-          feed_dict={graph_run.placeholder: input_},
-      )
+    else:
+      graph_run = self._build_graph_run(run_args)
+      self._graph_run_cache[signature] = graph_run
+    # Then execute the cached graph
+    return graph_run.session.run(
+        graph_run.output,
+        feed_dict={graph_run.placeholder: input_},
+    )
 
   def _build_graph_run(self, run_args):
     """Create a new graph for the given args."""
@@ -148,8 +145,8 @@ def assert_shape_match(shape1, shape2):
   shape1 = tf.TensorShape(shape1)
   shape2 = tf.TensorShape(shape2)
   if shape1.ndims is None or shape2.ndims is None:
-    raise ValueError('Shapes must have known rank. Got %s and %s.' %
-                     (shape1.ndims, shape2.ndims))
+    raise ValueError(
+        f'Shapes must have known rank. Got {shape1.ndims} and {shape2.ndims}.')
   shape1.assert_same_rank(shape2)
   shape1.assert_is_compatible_with(shape2)
 
@@ -176,9 +173,8 @@ def normalize_shape(
   """Normalize `tf.TensorShape` to tuple of int/None."""
   if isinstance(shape, tf.TensorShape):
     return tuple(shape.as_list())  # pytype: disable=attribute-error
-  else:
-    assert isinstance(shape, tuple)
-    return shape
+  assert isinstance(shape, tuple)
+  return shape
 
 
 def merge_shape(tf_shape: tf.Tensor, np_shape: type_utils.Shape):

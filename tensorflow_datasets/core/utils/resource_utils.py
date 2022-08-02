@@ -72,10 +72,7 @@ class ResourcePath(zipfile.Path):
 
   def joinpath(self, *parts: PathLike) -> 'ResourcePath':
     """Overwrite `joinpath` to be consistent with `pathlib.Path`."""
-    if not parts:
-      return self
-    else:
-      return super().joinpath(os.path.join(*parts))  # pylint: disable=no-value-for-parameter
+    return super().joinpath(os.path.join(*parts)) if parts else self
 
 
 def resource_path(package: Union[str, types.ModuleType]) -> ReadOnlyPath:

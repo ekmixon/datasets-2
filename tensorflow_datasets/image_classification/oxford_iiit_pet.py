@@ -84,8 +84,10 @@ class OxfordIIITPet(tfds.core.GeneratorBasedBuilder):
     # Note, that the extension of archives is .tar.gz even though the actual
     # archives format is uncompressed tar.
     dl_paths = dl_manager.download_and_extract({
-        "images": _BASE_URL + "/images.tar.gz",
-        "annotations": _BASE_URL + "/annotations.tar.gz",
+        "images":
+        f"{_BASE_URL}/images.tar.gz",
+        "annotations":
+        f"{_BASE_URL}/annotations.tar.gz",
     })
 
     images_path_dir = os.path.join(dl_paths["images"], "images")
@@ -122,7 +124,7 @@ class OxfordIIITPet(tfds.core.GeneratorBasedBuilder):
 
         trimaps_dir_path = os.path.join(annotations_dir_path, "trimaps")
 
-        trimap_name = image_name + ".png"
+        trimap_name = f"{image_name}.png"
         image_name += ".jpg"
         label = int(label) - 1
         species = int(species) - 1

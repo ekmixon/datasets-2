@@ -130,8 +130,8 @@ class Imagenet2012Real(tfds.core.GeneratorBasedBuilder):
     val_path = os.path.join(dl_manager.manual_dir, 'ILSVRC2012_img_val.tar')
     if not tf.io.gfile.exists(val_path):
       raise AssertionError(
-          'ImageNet requires manual download of the data. Please download '
-          'the train and val set and place them into: {}'.format(val_path))
+          f'ImageNet requires manual download of the data. Please download the train and val set and place them into: {val_path}'
+      )
     return [
         tfds.core.SplitGenerator(
             name=tfds.Split.VALIDATION,
